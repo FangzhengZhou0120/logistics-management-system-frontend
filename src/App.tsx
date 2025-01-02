@@ -1,34 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
+import { useOutlet, useNavigate } from 'react-router-dom';
+import KeepAlive from 'keepalive-for-react'
 import './App.css'
+import { Menu, MenuProps } from 'antd';
+import { TruckOutlined, UserOutlined } from '@ant-design/icons';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const navigate = useNavigate()
+  const outlet = useOutlet()
+  type MenuItem = Required<MenuProps>['items'][number];
+  const [current, setCurrent] = useState(location.pathname === '/' ? '/waybill-list' :location.pathname)
+  const items: MenuItem[] = [
+    {
+      label: '运单中心',
+      key: '/waybill-list',
+      icon: <TruckOutlined />,
+    },
+    {
+      label: '用户管理',
+      key: '/user-list',
+      icon: <UserOutlined />,
+    }
+  ]
+
+  const onClick: MenuProps['onClick'] = (e) => {
+    setCurrent(e.key)
+    // navigate(e.key)
+  }
+
+  useEffect(() =>  {
+    navigate(current)
+  },[current])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <header className="App-header">
+        <div>
+          <h3>物流管理后台</h3>
+        </div>
+      </header>
+      <div className='side-bar'>
+        <Menu onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className='content'>
+        <KeepAlive activeName={current} max={10} strategy={'LRU'}>
+          {outlet}
+        </KeepAlive>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
