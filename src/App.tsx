@@ -4,12 +4,13 @@ import KeepAlive from 'keepalive-for-react'
 import './App.css'
 import { Menu, MenuProps } from 'antd';
 import { TruckOutlined, UserOutlined } from '@ant-design/icons';
+import AMapLoader from "@amap/amap-jsapi-loader";
 
 function App() {
   const navigate = useNavigate()
   const outlet = useOutlet()
   type MenuItem = Required<MenuProps>['items'][number];
-  const [current, setCurrent] = useState(location.pathname === '/' ? '/waybill-list' :location.pathname)
+  const [current, setCurrent] = useState(location.pathname === '/' ? '/waybill-list' : location.pathname)
   const items: MenuItem[] = [
     {
       label: '运单中心',
@@ -28,9 +29,9 @@ function App() {
     // navigate(e.key)
   }
 
-  useEffect(() =>  {
+  useEffect(() => {
     navigate(current)
-  },[current])
+  }, [current])
 
   return (
     <div className="App">
@@ -40,7 +41,7 @@ function App() {
         </div>
       </header>
       <div className='side-bar'>
-        <Menu onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
+        <Menu  defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
       </div>
       <div className='content'>
         <KeepAlive activeName={current} max={10} strategy={'LRU'}>

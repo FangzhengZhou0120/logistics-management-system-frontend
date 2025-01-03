@@ -91,7 +91,7 @@ export const SearchBar: FC<{ filters: SearchFilter[], onSearch: Function, create
                 <Col xs={24} sm={12} md={8} lg={8} xl={6} flex={'none'}>
                     <Form.Item>
                         <Button type="primary" onClick={handleSearch}>
-                            Search
+                            搜索
                         </Button>
                     </Form.Item>
                 </Col>

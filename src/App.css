@@ -18,17 +18,20 @@
 }
 
 .side-bar {
-  width: 15%;
-  height: 100%;
+  width: 18%;
+  height: 90%;
+  margin-right: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  border-right: 1px solid #e0e0e0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .content {
-  width: 85%;
-  height: 100%;
+  width: 80%;
+  height: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
