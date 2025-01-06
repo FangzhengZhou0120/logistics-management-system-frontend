@@ -1,5 +1,7 @@
 import { Input, Select, Button, Form, Row, Col, DatePicker, Cascader } from 'antd';
 import { FC } from "react";
+import './search-bar.scss'
+import { PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
 
 export interface SearchFilterOption {
     label: string,
@@ -70,7 +72,7 @@ export const SearchBar: FC<{ filters: SearchFilter[], onSearch: Function, create
     };
 
     return (
-        <Form form={form} layout="inline" labelCol={{
+        <Form className='searchForm' form={form} layout="inline" labelCol={{
             xs: { span: 24 },
             sm: { span: 8 },
         }}
@@ -78,7 +80,7 @@ export const SearchBar: FC<{ filters: SearchFilter[], onSearch: Function, create
                 xs: { span: 24 },
                 sm: { span: 16 },
             }}>
-            <Row gutter={[16, 16]} wrap justify={'end'}>
+            <Row style={{width: "100%"}} gutter={[16, 16]} wrap justify={'end'}>
                 {filters.map((filter: any) => (
                     <Col
                         key={filter.name}
@@ -90,13 +92,13 @@ export const SearchBar: FC<{ filters: SearchFilter[], onSearch: Function, create
                 <Col flex={'auto'}></Col>
                 <Col xs={24} sm={12} md={8} lg={8} xl={6} flex={'none'}>
                     <Form.Item>
-                        <Button type="primary" onClick={handleSearch}>
+                        <Button icon={<SearchOutlined />} type="primary" onClick={handleSearch}>
                             搜索
                         </Button>
                     </Form.Item>
                 </Col>
                 <Col xs={24} sm={12} md={8} lg={8} xl={6} flex={'none'}>
-                    <Button type="primary" onClick={handleCreate}>
+                    <Button icon={<PlusCircleOutlined />} type="primary" onClick={handleCreate}>
                         {createText}
                     </Button>
                 </Col>

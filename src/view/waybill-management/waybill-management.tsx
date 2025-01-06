@@ -151,10 +151,10 @@ export const WaybillManagement = () => {
 
     return (
         <Fragment>
-            <div className='searchBar'>
+            <div className='searchBarWaybill'>
                 <SearchBar filters={filters} onSearch={onSearch} createText='新建' onCreate={onCreate} />
             </div>
-            <div className='table'>
+            <div className='tableWaybill'>
                 <Table<WaybillInfo>
                     scroll={{ scrollToFirstRowOnChange: true }}
                     dataSource={data}
