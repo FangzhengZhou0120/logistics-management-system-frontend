@@ -48,13 +48,6 @@ export const WaybillManagement = () => {
             options: []
         },
         {
-            type: 'input',
-            name: 'GPSDeviceSN',
-            label: 'GPS设备号',
-            placeholder: '请输入GPS设备号',
-            options: []
-        },
-        {
             type: 'select',
             multiple: true,
             name: 'cargoType',
@@ -66,6 +59,19 @@ export const WaybillManagement = () => {
                 { value: '3', label: '服装' },
                 { value: '4', label: '电子' },
                 { value: '99', label: '其他' },
+            ]
+        },
+        {
+            type: 'select',
+            multiple: true,
+            name: 'status',
+            label: '运单状态',
+            placeholder: '请选择运单状态',
+            options: [
+                { value: '1', label: '进行中' },
+                { value: '2', label: '已完成' },
+                { value: '-1', label: '异常' },
+                { value: '99', label: '已取消' },
             ]
         },
         {
@@ -179,7 +185,6 @@ export const WaybillManagement = () => {
                             return <span>{cargoTypeMap.get(type)}</span>
                         }
                     } />
-                    <Column title="GPS设备编号" dataIndex="GPSDeviceSN" key="GPSDeviceSN" />
                     <Column
                         title="出发时间"
                         dataIndex="startTime"
@@ -259,6 +264,13 @@ export const WaybillManagement = () => {
                         <Select placeholder={'请选择货物类型'} options={filters[4].options} allowClear />
                     </Form.Item>
                     <Form.Item
+                        name="cargoWeight"
+                        label="货物重量"
+                        rules={[{ required: true, message: '请输入货物重量!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
                         name="startLocationCode"
                         label="始发地"
                         rules={[{ required: true, message: '请选择始发地!' }]}
@@ -271,13 +283,6 @@ export const WaybillManagement = () => {
                         rules={[{ required: true, message: '请选择目的地!' }]}
                     >
                         <Cascader placeholder={'请选择目的地'} options={filters[1].options} allowClear />
-                    </Form.Item>
-                    <Form.Item
-                        name="GPSDeviceSN"
-                        label="GPS设备编号"
-                        rules={[{ required: true, message: '请输入GPS设备编号!' }]}
-                    >
-                        <Input />
                     </Form.Item>
                     <Form.Item
                         label="出发时间"
