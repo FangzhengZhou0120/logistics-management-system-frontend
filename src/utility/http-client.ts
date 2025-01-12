@@ -42,7 +42,7 @@ class HttpClient {
         return response;
       },
       (error) => {
-        message.error('request error', error.message);
+        message.error('request error: ' + error.message);
         // 统一处理错误
         if (error.response) {
           const { status, data } = error.response;

@@ -3,6 +3,7 @@ import HttpClient from "../utility/http-client";
 export interface WaybillInfo {
     id: number,
     carNumber: string,
+    carNumberColor: number,
     driverId: number,
     driverName: string,
     startLocation: string,
@@ -11,24 +12,48 @@ export interface WaybillInfo {
     endLocationCode: string,
     startTime: number,
     endTime: number,
-    status: string,
-    cargoType: string,
+    status: number,
+    cargoType: number,
     cargoWeight: number,
-    GPSDeviceSN: string,
+    fileList: string,
+    endFileList: string,
     remark: string,
     key?: number
 }
 
 export interface WaybillCreateForm {
     carNumber: string,
+    carNumberColor: number,
     driverId: number,
+    driverName: string,
     startLocationCode: string,
     endLocationCode: string,
+    startLocation: string,
+    endLocation: string,
     startTime: number,
-    cargoType: string,
+    cargoType: number,
     cargoWeight: number,
-    GPSDeviceSN: string,
-    remark: string,
+    fileList?: string,
+    remark?: string,
+}
+
+export interface CityInfo {
+    id: number,
+    cityName: string,
+    cityCode: string,
+    parentName: string,
+    parentCode: string,
+}
+
+export interface UploadConfig {
+    version: string,
+    policy: string,         // Policy 的 Base64 字符串
+    credential: string,
+    ossdate: string,
+    signature: string,
+    token: string,         // STS 临时令牌
+    dir: string,
+    host: string,
 }
 
 export interface PageData<T> {
@@ -48,3 +73,14 @@ export const createWaybill = async (waybill: WaybillCreateForm) => {
     return HttpClient.post<undefined>('/waybill/create', waybill)
 }
 
+export const getCityList = async () => {
+    return HttpClient.get<CityInfo[]>('/city/list')
+}
+
+export const getWaybillDetail = async (id: number) => {
+    return HttpClient.get<WaybillInfo>('/waybill/detail?id=' + id)
+}
+
+export const getUploadConfig = async () => {
+    return HttpClient.get<UploadConfig>('/waybill/upload')
+}

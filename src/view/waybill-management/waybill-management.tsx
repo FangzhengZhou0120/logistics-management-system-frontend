@@ -1,13 +1,17 @@
-import { Fragment, useCallback, useRef, useState } from 'react';
+import { Children, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
-import { cancelWaybill, createWaybill, getWaybillList, WaybillInfo } from '../../api/waybill';
-import { StopOutlined, UploadOutlined } from '@ant-design/icons';
+import { cancelWaybill, createWaybill, getCityList, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
+import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-management.scss'
-import { cargoTypeMap, waybillStatusMap } from '../../utility/constants';
+import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility/constants';
+import { getUserByRole } from '../../api/user';
+import { useNavigate } from 'react-router-dom';
+import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
 
 export const WaybillManagement = () => {
+    const navigate = useNavigate()
     const { Column } = Table
     const [form] = Form.useForm()
     const [open, setOpen] = useState(false);
@@ -16,7 +20,13 @@ export const WaybillManagement = () => {
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [total, setTotal] = useState(0)
-    const searchOption = useRef({})
+    const searchOption = useRef<any>({})
+    const [cityList, setCityList] = useState<{ label: string; value: string; children: { label: string; value: string; }[] }[]>([])
+    const [driverList, setDriverList] = useState<{ label: string; value: string; }[]>([])
+    const cityMap = useRef(new Map<string, string>())
+    const driverMap = useRef(new Map<string, string>())
+    const carNumberColorList = useRef<{ label: string; value: string; }[]>([])
+
     const filters: SearchFilter[] = [
         {
             type: 'input',
@@ -31,21 +41,21 @@ export const WaybillManagement = () => {
             name: 'driverId',
             label: '司机',
             placeholder: '请选择司机',
-            options: []
+            options: driverList
         },
         {
             type: 'cascader',
-            name: 'startLocation',
+            name: 'startLocationCode',
             label: '始发地',
             placeholder: '请选择始发地',
-            options: []
+            options: cityList
         },
         {
             type: 'cascader',
-            name: 'endLocation',
+            name: 'endLocationCode',
             label: '目的地',
             placeholder: '请选择目的地',
-            options: []
+            options: cityList
         },
         {
             type: 'select',
@@ -84,6 +94,8 @@ export const WaybillManagement = () => {
     ]
 
     const getWaybillListMethod = () => {
+        searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
+        searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         return getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
             setData(res.data.rows)
@@ -100,6 +112,8 @@ export const WaybillManagement = () => {
     }
 
     const onPageChange = (pageIndex: number, pageSize: number) => {
+        searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
+        searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
             setData(res.data.rows)
@@ -112,15 +126,9 @@ export const WaybillManagement = () => {
     }
 
     const onCreate = useCallback(() => {
+        form.resetFields()
         setOpen(true)
     }, [])
-
-    const uploadOp: UploadProps = {
-        action: '/upload',
-        onChange: ({ file, fileList }) => {
-            console.log(file, fileList)
-        }
-    }
 
     const confirmAbort = (id: number) => {
         cancelWaybill(id).then(_ => {
@@ -146,14 +154,100 @@ export const WaybillManagement = () => {
     };
 
     const onFinish = (values: any) => {
+        values.startTime = new Date(values.startTime).getTime()
+        values.startLocation = (cityMap.current.get(values.startLocationCode[0]) || '') + (cityMap.current.get(values.startLocationCode[1]) || '')
+        values.endLocation = (cityMap.current.get(values.endLocationCode[0]) || '') + (cityMap.current.get(values.endLocationCode[1]) || '')
+        values.startLocationCode = values.startLocationCode.join(',')
+        values.endLocationCode = values.endLocationCode.join(',')
+        values.driverName = driverMap.current.get(values.driverId)
+        values.fileList  = values.fileList.map((it: any) => it.url).join(',')
+        console.log(values)
+        setConfirmLoading(true)
         createWaybill(values).then((res) => {
             message.success('创建运单成功');
             setOpen(false)
             getWaybillListMethod()
         }).catch(err => {
             message.error('创建运单失败' + JSON.stringify(err))
+        }).finally(() => {
+            setConfirmLoading(false)
         })
     };
+
+    const onClickWaybillUpdate = (id:number) => {
+        getWaybillDetail(id).then(res => {
+            form.setFieldsValue(res.data)
+            form.setFieldsValue({
+                startTime: dayjs(new Date(res.data.startTime)),
+                startLocationCode: res.data.startLocationCode.split(','),
+                endLocationCode: res.data.endLocationCode.split(','),
+                fileList: res.data.fileList.split(",").map((it: string, index: number) => {
+                    return {
+                        uid: index,
+                        name: it,
+                        status: 'done',
+                        url: it
+                    }
+                }),
+                endFileList: res.data.endFileList.length > 0 ? res.data.endFileList.split(",").map((it: string, index: number) => {
+                    return {
+                        uid: index,
+                        name: it,
+                        status: 'done',
+                        url: it
+                    }
+                }) : []
+            })
+            setOpen(true)
+        }).catch(err => {
+            message.error(err.message);
+        })
+    }
+
+    const onClickWaybillDetail = (id: number) => {
+        navigate('/waybill-detail/' + id)
+    }
+
+    useEffect(() => {
+        getCityList().then(res => {
+            const provinceList = new Set(res.data.map(it => it.parentCode))
+            setCityList(Array.from(provinceList).map(it => {
+                const parentName = res.data.find(city => city.parentCode === it)?.parentName || '';
+                return {
+                    value: it,
+                    label: parentName,
+                    children: res.data.filter(city => city.parentCode === it).map(city => {
+                        return {
+                            value: city.cityCode,
+                            label: city.cityName
+                        }
+                    })
+                }
+            }))
+            cityMap.current = new Map(res.data.map(it => [it.cityCode, it.cityName]))
+            provinceList.forEach(it => {
+                cityMap.current.set(it, res.data.find(city => city.parentCode === it)?.parentName || '')
+            })
+            //filters[2].options = cityList.current
+            //filters[3].options = cityList.current
+        })
+        getWaybillListMethod()
+        getUserByRole(2).then(res => {
+            setDriverList(res.data.map(it => {
+                return {
+                    value: it.id.toString(),
+                    label: it.userName
+                }
+            }))
+            driverMap.current = new Map(res.data.map(it => [it.id.toString(), it.userName]))
+        })
+        carNumberColorList.current = Array.from(carNumberColorMap).map(it => {
+            return {
+                value: it[0].toString(),
+                label: it[1]
+            }
+        })
+    },[])
 
     return (
         <Fragment>
@@ -171,8 +265,9 @@ export const WaybillManagement = () => {
                         total: total,
                         onChange: onPageChange
                     }}>
-                    <Column title="运单ID" dataIndex="id" key="waybillId" render={(text) => <a >{text}</a>} />
+                    <Column title="运单ID" dataIndex="id" key="waybillId" />
                     <Column title="车牌号" dataIndex="carNumber" key="carNumber" />
+                    <Column title="司机" dataIndex="driverName" key="driverName" />
                     <Column title="运单状态" dataIndex="status" key="status" render={
                         (status: number) => {
                             return <span>{waybillStatusMap.get(status)}</span>
@@ -190,7 +285,7 @@ export const WaybillManagement = () => {
                         dataIndex="startTime"
                         key="startTime"
                         render={(time) => {
-                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD hh:mm:ss') : '--'}</span>
+                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
                         }}
                     />
                     <Column
@@ -198,7 +293,7 @@ export const WaybillManagement = () => {
                         dataIndex="endTime"
                         key="endTime"
                         render={(time) => {
-                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD hh:mm:ss') : '--'}</span>
+                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
                         }}
                     />
                     <Column title="备注" dataIndex="remark" key="remark" />
@@ -207,6 +302,8 @@ export const WaybillManagement = () => {
                         key="action"
                         render={(_: any, record: WaybillInfo) => (
                             <Space size="middle">
+                                <a onClick={() => onClickWaybillDetail(record.id)}><EyeOutlined />查看</a>
+                                <a onClick={() => onClickWaybillUpdate(record.id)}><EditOutlined />更新</a>
                                 <Popconfirm
                                     title="取消运单"
                                     description="是否确定取消运单?"
@@ -222,7 +319,7 @@ export const WaybillManagement = () => {
                 </Table>
             </div>
             <Modal
-                title="创建运单"
+                title={form.getFieldValue('id') ? "运单详情" : "创建运单"}
                 open={open}
                 confirmLoading={confirmLoading}
                 onCancel={() => setOpen(false)}
@@ -242,54 +339,70 @@ export const WaybillManagement = () => {
                     style={{ maxWidth: 600 }}
                     scrollToFirstError
                 >
+                    {
+                        form.getFieldValue('id') &&
+                        <Form.Item
+                            name="id"
+                            label="运单ID"
+                        >
+                            <Input disabled />
+                        </Form.Item>
+                    }
                     <Form.Item
                         name="carNumber"
                         label="车牌号"
                         rules={[{ required: true, message: '请输入车牌号!' }]}
                     >
-                        <Input />
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        name="carNumberColor"
+                        label="车牌颜色"
+                        rules={[{ required: true, message: '请选择车牌颜色!' }]}
+                    >
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择车辆颜色'} options={carNumberColorList.current} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="driverId"
                         label="司机"
                         rules={[{ required: true, message: '请选择司机!' }]}
                     >
-                        <Select placeholder={'请选择司机'} options={filters[4].options} allowClear />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择司机'} options={driverList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="cargoType"
                         label="货物类型"
                         rules={[{ required: true, message: '请选择货物类型!' }]}
                     >
-                        <Select placeholder={'请选择货物类型'} options={filters[4].options} allowClear />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[4].options} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="cargoWeight"
                         label="货物重量"
                         rules={[{ required: true, message: '请输入货物重量!' }]}
                     >
-                        <Input />
+                        <Input disabled={form.getFieldValue('id') !== undefined}/>
                     </Form.Item>
                     <Form.Item
                         name="startLocationCode"
                         label="始发地"
                         rules={[{ required: true, message: '请选择始发地!' }]}
                     >
-                        <Cascader placeholder={'请选择始发地'} options={filters[1].options} allowClear />
+                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择始发地'} options={cityList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="endLocationCode"
                         label="目的地"
                         rules={[{ required: true, message: '请选择目的地!' }]}
                     >
-                        <Cascader placeholder={'请选择目的地'} options={filters[1].options} allowClear />
+                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={cityList} allowClear />
                     </Form.Item>
                     <Form.Item
                         label="出发时间"
                         name="startTime"
                         rules={[{ required: true, message: '请选择出发时间!' }]}
                     >
-                        <DatePicker showTime />
+                        <DatePicker disabled={form.getFieldValue('id') !== undefined} showTime />
                     </Form.Item>
                     <Form.Item
                         name="remark"
@@ -301,16 +414,24 @@ export const WaybillManagement = () => {
 
                     <Form.Item
                         label="出发前检查"
-                        name="uploadFiles"
+                        name="fileList"
+                        rules={[{ required: true, message: '请上传照片!' }]}
                     >
-                        <Upload {...uploadOp}>
-                            <Button icon={<UploadOutlined />}>上传</Button>
-                        </Upload>
+                        <AliyunOSSUpload key={"file_list"}/>
                     </Form.Item>
+                    {
+                        form.getFieldValue('id') && <Form.Item
+                        label="到达后检查"
+                        name="endFileList"
+                        rules={[{ required: true, message: '请上传照片!' }]}
+                    >
+                        <AliyunOSSUpload key={"end_file_list"}/>
+                    </Form.Item>
+                    }
                     <Form.Item {...tailFormItemLayout}>
-                        <Button type="primary" htmlType="submit">
-                            提交
-                        </Button>
+                        {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) &&<Button type="primary" htmlType="submit">
+                            {form.getFieldValue('id') ? "确认送达" : "提交"}
+                        </Button>}
                     </Form.Item>
                 </Form>
             </Modal>

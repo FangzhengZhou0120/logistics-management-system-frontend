@@ -25,7 +25,7 @@ const router = createBrowserRouter([
                 element: <UserManagement />
             },
             {
-                path:"waybill-detail",
+                path:"waybill-detail/:id",
                 element: <WaybillDetail />
             }
         ]

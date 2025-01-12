@@ -41,12 +41,14 @@ function App() {
         </div>
       </header>
       <div className='side-bar'>
-        <Menu  defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
+        <Menu defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
       </div>
       <div className='content'>
-        <KeepAlive activeName={current} max={10} strategy={'LRU'}>
-          {outlet}
-        </KeepAlive>
+        {!location.pathname.includes('waybill-detail') ? (
+          <KeepAlive activeName={current} max={10} strategy={'LRU'}>
+            {outlet}
+          </KeepAlive>
+        ) : outlet}
       </div>
     </div>
   )

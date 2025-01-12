@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
 import { cancelWaybill, createWaybill, getWaybillList, WaybillInfo } from '../../api/waybill';
@@ -68,13 +68,6 @@ export const UserManagement = () => {
         setOpen(true)
     }, [])
 
-    const uploadOp: UploadProps = {
-        action: '/upload',
-        onChange: ({ file, fileList }) => {
-            console.log(file, fileList)
-        }
-    }
-
     const confirmAbort = (id: number) => {
         deleteUser(id).then(_ => {
             getUserList()
@@ -107,6 +100,10 @@ export const UserManagement = () => {
             message.error('创建用户失败' + JSON.stringify(err))
         })
     };
+
+    useEffect(() => {
+        getUserList()
+    },[])
 
     return (
         <Fragment>

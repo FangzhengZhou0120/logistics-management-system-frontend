@@ -13,3 +13,9 @@ export const cargoTypeMap = new Map([
     [4, "电子"],
     [99, "其他"],
 ]);
+
+export const carNumberColorMap = new Map([
+    [1, "蓝色"],
+    [2, "黄色"],
+    [3, "黄绿"],
+]);

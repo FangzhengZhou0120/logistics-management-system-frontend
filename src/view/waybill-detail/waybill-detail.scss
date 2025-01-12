@@ -1,0 +1,58 @@
+.waybill-detail {
+    position: absolute;
+    top: 10%;
+    right: 3%;
+    width: 15%;
+    height: 30%;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    overflow: auto;
+    z-index: 100;
+}
+
+.waybill-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.waybill-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.waybill-detail-close {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.waybill-detail-tool-bar {
+    position: absolute;
+    width: 77%;
+    top: 10%;
+    left: 20%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px;
+    z-index: 100;
+}
+
+.waybill-detail-tool-bar-right {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}

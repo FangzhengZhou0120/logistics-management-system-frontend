@@ -3,7 +3,7 @@ import { PageData } from "./waybill";
 
 export interface UserInfo {
     id: number,
-    username: string,
+    userName: string,
     phone: string,
     role: string,
     remark: string,
@@ -11,7 +11,7 @@ export interface UserInfo {
 }
 
 export interface UserCreateForm {
-    username: string,
+    userName: string,
     phone: string,
     role: string,
     remark: string,
@@ -31,4 +31,8 @@ export const updateUser = async (user: UserInfo) => {
 
 export const deleteUser = async (id: number) => {
     return HttpClient.post<undefined>('/user/delete', {id})
+}
+
+export const getUserByRole = async (role: number) => {
+    return HttpClient.get<UserInfo[]>('/user/role?role=' + role)
 }
