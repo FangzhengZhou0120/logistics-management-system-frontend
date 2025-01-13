@@ -25,8 +25,8 @@ export const Login = () => {
             message.success('登录成功!');
             navigate('/waybill-list');
             // TODO: Handle successful login (e.g., redirect to dashboard)
-        } catch (error) {
-            message.error('登录失败： + ' + error);
+        } catch (error:any) {
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -59,7 +59,7 @@ export const Login = () => {
                         <Input.Password placeholder="请输入密码" />
                     </Form.Item>
 
-                    <div>
+                    <div className='captcha'>
                         <SliderCaptcha
                             mode="slider"
                             tipText={{

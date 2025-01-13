@@ -6,30 +6,39 @@ import { WaybillManagement } from "./view/waybill-management/waybill-management"
 import { UserManagement } from "./view/user-management/user-management";
 import { WaybillDetail } from "./view/waybill-detail/waybill-detail";
 import { Login } from "./view/login/login";
+import { AuthProvider } from "./context/user-context";
+import { AuthGuard } from "./component/auth-guard/auth-guard";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <App />,
+        element:
+            <AuthProvider>
+                <App />
+            </AuthProvider>,
         children: [
+
             {
-                path: "login",
-                element: <Login />
+                path: "waybill-list",
+                element: <AuthGuard><WaybillManagement /></AuthGuard>
             },
             {
-                path:"waybill-list",
-                element: <WaybillManagement />
+                path: "user-list",
+                element: <AuthGuard><UserManagement /></AuthGuard>
             },
             {
-                path:"user-list",
-                element: <UserManagement />
-            },
-            {
-                path:"waybill-detail/:id",
-                element: <WaybillDetail />
+                path: "waybill-detail/:id",
+                element: <AuthGuard><WaybillDetail /></AuthGuard>
             }
         ]
-    }
+    },
+    {
+        path: "login",
+        element:
+            <AuthProvider>
+                <Login />
+            </AuthProvider>
+    },
 ]);
 
 export default router;

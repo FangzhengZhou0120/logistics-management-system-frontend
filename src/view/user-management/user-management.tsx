@@ -6,7 +6,7 @@ import { EditOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './user-management.scss'
 import { cargoTypeMap, waybillStatusMap } from '../../utility/constants';
-import { createUser, deleteUser, getUserListMethod, UserInfo } from '../../api/user';
+import { createUser, deleteUser, getUserListMethod, updateUser, UserInfo } from '../../api/user';
 
 export const UserManagement = () => {
     const { Column } = Table
@@ -65,8 +65,17 @@ export const UserManagement = () => {
     }
 
     const onCreate = useCallback(() => {
+        form.resetFields()
         setOpen(true)
     }, [])
+
+    const onClickUserDetail = (record: UserInfo) => {
+        form.setFieldsValue(record)
+        form.setFieldsValue({
+            role: record.role == 1 ? "管理员": "司机"
+        })
+        setOpen(true)
+    }
 
     const confirmAbort = (id: number) => {
         deleteUser(id).then(_ => {
@@ -92,13 +101,23 @@ export const UserManagement = () => {
     };
 
     const onFinish = (values: any) => {
-        createUser(values).then((res) => {
-            message.success('创建用户成功');
-            setOpen(false)
-            getUserList()
-        }).catch(err => {
-            message.error('创建用户失败' + JSON.stringify(err))
-        })
+        if(values.id) {
+            updateUser(values).then((res) => {
+                message.success('更新用户成功');
+                setOpen(false)
+                getUserList()
+            }).catch(err => {
+                message.error('更新用户失败' + JSON.stringify(err))
+            })
+        } else {
+            createUser(values).then((res) => {
+                message.success('创建用户成功');
+                setOpen(false)
+                getUserList()
+            }).catch(err => {
+                message.error('创建用户失败' + JSON.stringify(err))
+            })
+        }
     };
 
     useEffect(() => {
@@ -133,18 +152,20 @@ export const UserManagement = () => {
                     <Column
                         title="操作"
                         key="action"
-                        render={(_: any, record: WaybillInfo) => (
+                        render={(_: any, record: UserInfo) => (
                             <Space size="middle">
-                                <a><EditOutlined />修改</a>
-                                <Popconfirm
-                                    title="取消运单"
-                                    description="是否确定取消运单?"
+                                <a onClick={() => onClickUserDetail(record)}><EditOutlined />修改</a>
+                                {record.role !== 1 && <Popconfirm
+                                    title="删除用户"
+                                    description="是否确定删除用户?"
                                     onConfirm={(e) => confirmAbort(record.id)}
                                     okText="是"
                                     cancelText="否"
                                 >
-                                    <a><StopOutlined />取消</a>
-                                </Popconfirm>
+                                    <a><StopOutlined />删除</a>
+                                    
+                                </Popconfirm>}
+                                {record.role === 1 && <span style={{color: 'gray'}}><StopOutlined />删除</span>}
                             </Space>
                         )}
                     />
@@ -185,7 +206,7 @@ export const UserManagement = () => {
                         label="姓名"
                         rules={[{ required: true, message: '请输入用户姓名!' }]}
                     >
-                        <Input />
+                        <Input disabled={form.getFieldValue('id') !== undefined}/>
                     </Form.Item>
                     <Form.Item
                         name="role"
@@ -197,9 +218,16 @@ export const UserManagement = () => {
                     <Form.Item
                         name="phone"
                         label="手机号"
-                        rules={[{ required: true, message: 'Please input the Device SN!' }]}
+                        rules={[{ required: true, message: '请输入手机号!' }]}
                     >
-                        <Input />
+                        <Input disabled={form.getFieldValue('id') !== undefined}/>
+                    </Form.Item>
+                    <Form.Item
+                        name="password"
+                        label="密码"
+                        rules={[{ required: true, message: '请输入密码!' }]}
+                    >
+                        <Input.Password disabled={form.getFieldValue('id') !== undefined}/>
                     </Form.Item>
                     <Form.Item
                         name="remark"

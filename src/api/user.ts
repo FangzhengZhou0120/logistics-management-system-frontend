@@ -6,8 +6,9 @@ export interface UserInfo {
     id: number,
     userName: string,
     phone: string,
-    role: string,
+    role: number,
     remark: string,
+    password: string,
     key?: number
 }
 
@@ -16,6 +17,7 @@ export interface UserCreateForm {
     phone: string,
     role: string,
     remark: string,
+    password: string
 }
 
 export const getUserListMethod = async (pageIndex: number, pageSize: number, options: any) => {
@@ -23,6 +25,7 @@ export const getUserListMethod = async (pageIndex: number, pageSize: number, opt
 }
 
 export const createUser = async (user: UserCreateForm) => { 
+    user.password = encodePassword(user.password)
     return HttpClient.post<undefined>('/user/create', user)
 }
 
@@ -38,7 +41,11 @@ export const getUserByRole = async (role: number) => {
     return HttpClient.get<UserInfo[]>('/user/role?role=' + role)
 }
 
-export const login = async (userName: string, password: string) => {
+export const login = async (phone: string, password: string) => {
     const enctrptedPassword = encodePassword(password)
-    return HttpClient.post<UserInfo>('/user/login', {userName, password: enctrptedPassword})
+    return HttpClient.post<UserInfo>('/login', {phone, password: enctrptedPassword})
+}
+
+export const logout = async () => {
+    return HttpClient.get<undefined>('/logout')
 }

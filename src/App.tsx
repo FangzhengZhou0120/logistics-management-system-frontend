@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react'
 import { useOutlet, useNavigate } from 'react-router-dom';
 import KeepAlive from 'keepalive-for-react'
 import './App.css'
-import { Menu, MenuProps } from 'antd';
+import { Avatar, Menu, MenuProps } from 'antd';
 import { TruckOutlined, UserOutlined } from '@ant-design/icons';
 import AMapLoader from "@amap/amap-jsapi-loader";
+import { useAuth } from './context/user-context';
+import { logout } from './api/user';
 
 function App() {
   const navigate = useNavigate()
   const outlet = useOutlet()
+  const {user} = useAuth()
   type MenuItem = Required<MenuProps>['items'][number];
   const [current, setCurrent] = useState(location.pathname === '/' ? '/waybill-list' : location.pathname)
   const items: MenuItem[] = [
@@ -29,6 +32,12 @@ function App() {
     // navigate(e.key)
   }
 
+  const onClickLogout = () => {
+    localStorage.removeItem('user')
+    logout()
+    navigate('/login')
+  }
+
   useEffect(() => {
     navigate(current)
   }, [current])
@@ -39,12 +48,18 @@ function App() {
         <div>
           <h3>物流管理后台</h3>
         </div>
+        <div className='user-info'>
+        <Avatar style={{ backgroundColor: '#f56a00', verticalAlign: 'middle', marginRight: '5px' }} size="large" gap={2}>
+          {user?.userName}
+        </Avatar>
+          <a style={{cursor: 'pointer'}} onClick={onClickLogout}>登出</a>
+        </div>
       </header>
       <div className='side-bar'>
         <Menu defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
       </div>
       <div className='content'>
-        {!location.pathname.includes('waybill-detail') ? (
+        {!location.pathname.includes('waybill-detail') && !location.pathname.includes('login') ? (
           <KeepAlive activeName={current} max={10} strategy={'LRU'}>
             {outlet}
           </KeepAlive>

@@ -17,5 +17,5 @@ export function convertToDate(dateString:string) {
   }
 
 export function encodePassword(password:string) {
-    return MD5(password).toString();
+    return MD5("ps" + password + "waybill-system").toString();
 }

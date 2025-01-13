@@ -42,7 +42,7 @@ class HttpClient {
         return response;
       },
       (error) => {
-        message.error('request error: ' + error.message);
+        //message.error('request error: ' + error.message);
         // 统一处理错误
         if (error.response) {
           const { status, data } = error.response;
@@ -52,6 +52,7 @@ class HttpClient {
             console.error('Not Found');
           } else if (status === 500) {
             console.error('Server Error');
+            message.error('request error: ' + JSON.parse(data).message);
           } else {
             console.error(data.message || 'request error');
           }
