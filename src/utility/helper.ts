@@ -1,3 +1,5 @@
+import { MD5 } from "crypto-js";
+
 export function convertToDate(dateString:string) {
     // Extract components
     const year = dateString.slice(0, 4);
@@ -13,3 +15,7 @@ export function convertToDate(dateString:string) {
     // Return new Date object
     return new Date(isoString);
   }
+
+export function encodePassword(password:string) {
+    return MD5(password).toString();
+}

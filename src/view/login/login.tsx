@@ -1,20 +1,32 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
+import SliderCaptcha, { ActionType } from 'rc-slider-captcha';
 import './login.scss';
+import { login } from '../../api/user';
+import { useAuth } from '../../context/user-context';
+import { useNavigate } from 'react-router-dom';
 
 export const Login = () => {
     const [loading, setLoading] = useState(false);
+    const actionRef = useRef<ActionType>();
+    const [canLogin, setCanLogin] = useState(false);
+    const { setUser } = useAuth();
+    const navigate = useNavigate();
+
+    const controlBarWidth = 320;
+    const controlButtonWidth = 40;
+    const indicatorBorderWidth = 2;
 
     const onFinish = async (values: { phone: string; password: string }) => {
         try {
             setLoading(true);
-            // TODO: Replace with your actual API call
-            // const response = await loginApi(values.phone, values.password);
-            
-            message.success('Login successful!');
+            const user = await login(values.phone, values.password);
+            setUser(user.data);
+            message.success('登录成功!');
+            navigate('/waybill-list');
             // TODO: Handle successful login (e.g., redirect to dashboard)
         } catch (error) {
-            message.error('Login failed. Please check your credentials.');
+            message.error('登录失败： + ' + error);
         } finally {
             setLoading(false);
         }
@@ -23,34 +35,60 @@ export const Login = () => {
     return (
         <div className="login-container">
             <div className="login-box">
-                <h1>Login</h1>
+                <h1>物流管理系统</h1>
                 <Form
                     name="login"
                     onFinish={onFinish}
                     layout="vertical"
                 >
                     <Form.Item
-                        label="Phone Number"
+                        label="手机号"
                         name="phone"
                         rules={[
-                            { required: true, message: 'Please input your phone number!' },
-                            { pattern: /^[0-9]{10}$/, message: 'Please enter a valid phone number!' }
+                            { required: true, message: '请输入手机号!' },
+                            { pattern: /^[0-9]{11}$/, message: '请输入有效手机号!' }
                         ]}
                     >
-                        <Input placeholder="Enter your phone number" />
+                        <Input placeholder="请输入手机号" />
+                    </Form.Item>
+                    <Form.Item
+                        label="密码"
+                        name="password"
+                        rules={[{ required: true, message: '请输入密码!' }]}
+                    >
+                        <Input.Password placeholder="请输入密码" />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
-                    >
-                        <Input.Password placeholder="Enter your password" />
-                    </Form.Item>
+                    <div>
+                        <SliderCaptcha
+                            mode="slider"
+                            tipText={{
+                                default: '请按住滑块，拖动到最右边',
+                                moving: '请按住滑块，拖动到最右边',
+                                error: '验证失败，请重新操作',
+                                success: '验证成功'
+                            }}
+                            errorHoldDuration={1000}
+                            // 手动设置拼图宽度等于滑块宽度。后面大版本更新会将该模式下的拼图宽度改为和滑块宽度一致。
+                            puzzleSize={{
+                                left: indicatorBorderWidth,
+                                width: controlButtonWidth
+                            }}
+                            onVerify={(data:any) => {
+                                console.log(data);
+                                if (data.x === controlBarWidth - controlButtonWidth - indicatorBorderWidth) {
+                                    setCanLogin(true);
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject();
+                            }}
+                            actionRef={actionRef}
+                        />
+                    </div>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={loading} block>
-                            Log in
+                        <Button disabled={!canLogin} type="primary" htmlType="submit" loading={loading} block>
+                            登录
                         </Button>
                     </Form.Item>
                 </Form>

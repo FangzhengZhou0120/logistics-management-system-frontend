@@ -21,7 +21,7 @@ export const WaybillManagement = () => {
     const [pageSize, setPageSize] = useState(10)
     const [total, setTotal] = useState(0)
     const searchOption = useRef<any>({})
-    const [cityList, setCityList] = useState<{ label: string; value: string; children: { label: string; value: string; }[] }[]>([])
+    const [cityList, setCityList] = useState<any[]>([])
     const [driverList, setDriverList] = useState<{ label: string; value: string; }[]>([])
     const cityMap = useRef(new Map<string, string>())
     const driverMap = useRef(new Map<string, string>())
@@ -210,24 +210,29 @@ export const WaybillManagement = () => {
 
     useEffect(() => {
         getCityList().then(res => {
-            const provinceList = new Set(res.data.map(it => it.parentCode))
-            setCityList(Array.from(provinceList).map(it => {
-                const parentName = res.data.find(city => city.parentCode === it)?.parentName || '';
+            //const provinceList = new Set(res.data.filter(it => it.parentCode === "100000"))
+            setCityList(res.data.filter(it => it.parentCode === "100000").map(province => {
                 return {
-                    value: it,
-                    label: parentName,
-                    children: res.data.filter(city => city.parentCode === it).map(city => {
+                    value: province.cityCode,
+                    label: province.cityName,
+                    children: res.data.filter(city => city.parentCode === province.cityCode).map(city => {
                         return {
                             value: city.cityCode,
-                            label: city.cityName
+                            label: city.cityName,
+                            children: res.data.filter(district => district.parentCode === city.cityCode).map(district => {
+                                return {
+                                    value: district.cityCode,
+                                    label: district.cityName
+                                }
+                            })
                         }
                     })
                 }
             }))
             cityMap.current = new Map(res.data.map(it => [it.cityCode, it.cityName]))
-            provinceList.forEach(it => {
-                cityMap.current.set(it, res.data.find(city => city.parentCode === it)?.parentName || '')
-            })
+            // provinceList.forEach(it => {
+            //     cityMap.current.set(it, res.data.find(city => city.parentCode === it)?.parentName || '')
+            // })
             //filters[2].options = cityList.current
             //filters[3].options = cityList.current
         })
@@ -404,6 +409,15 @@ export const WaybillManagement = () => {
                     >
                         <DatePicker disabled={form.getFieldValue('id') !== undefined} showTime />
                     </Form.Item>
+                    {
+                        form.getFieldValue('id') && <Form.Item
+                        label="到达时间"
+                        name="endTime"
+                        rules={[{ required: true, message: '请上传照片!' }]}
+                    >
+                        <DatePicker showTime />
+                    </Form.Item>
+                    }
                     <Form.Item
                         name="remark"
                         label="备注"

@@ -1,3 +1,4 @@
+import { encodePassword } from "../utility/helper";
 import HttpClient from "../utility/http-client";
 import { PageData } from "./waybill";
 
@@ -35,4 +36,9 @@ export const deleteUser = async (id: number) => {
 
 export const getUserByRole = async (role: number) => {
     return HttpClient.get<UserInfo[]>('/user/role?role=' + role)
+}
+
+export const login = async (userName: string, password: string) => {
+    const enctrptedPassword = encodePassword(password)
+    return HttpClient.post<UserInfo>('/user/login', {userName, password: enctrptedPassword})
 }
