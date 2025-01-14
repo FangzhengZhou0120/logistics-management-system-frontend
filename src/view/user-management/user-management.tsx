@@ -71,9 +71,7 @@ export const UserManagement = () => {
 
     const onClickUserDetail = (record: UserInfo) => {
         form.setFieldsValue(record)
-        form.setFieldsValue({
-            role: record.role == 1 ? "管理员": "司机"
-        })
+        form.setFieldValue('role', record.role.toString())
         setOpen(true)
     }
 
@@ -222,13 +220,13 @@ export const UserManagement = () => {
                     >
                         <Input disabled={form.getFieldValue('id') !== undefined}/>
                     </Form.Item>
-                    <Form.Item
+                    {form.getFieldValue('id') === undefined && <Form.Item
                         name="password"
                         label="密码"
                         rules={[{ required: true, message: '请输入密码!' }]}
                     >
                         <Input.Password disabled={form.getFieldValue('id') !== undefined}/>
-                    </Form.Item>
+                    </Form.Item>}
                     <Form.Item
                         name="remark"
                         label="备注"

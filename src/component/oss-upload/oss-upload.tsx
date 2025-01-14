@@ -20,9 +20,10 @@ interface AliyunOSSUploadProps {
     value?: UploadFile[];
     onChange?: (fileList: UploadFile[]) => void;
     key?: string;
+    disabled?: boolean
 }
 
-const AliyunOSSUpload = ({ value, onChange, key }: AliyunOSSUploadProps) => {
+const AliyunOSSUpload = ({ value, onChange, key, disabled }: AliyunOSSUploadProps) => {
     type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0]
     const [OSSData, setOSSData] = useState<UploadConfig>();
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -124,7 +125,7 @@ const AliyunOSSUpload = ({ value, onChange, key }: AliyunOSSUploadProps) => {
 
     return (
         <>
-        <Upload key={key} {...uploadProps}>
+        <Upload disabled={disabled} key={key} {...uploadProps}>
             <button style={{ border: 0, background: 'none' }} type="button">
                 <PlusOutlined />
                 <div style={{ marginTop: 8 }}>上传</div>

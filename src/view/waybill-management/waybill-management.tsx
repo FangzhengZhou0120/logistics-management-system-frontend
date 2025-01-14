@@ -1,7 +1,7 @@
 import { Children, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
-import { cancelWaybill, createWaybill, getCityList, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
+import { cancelWaybill, createWaybill, finishWaybill, getCityList, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
 import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-management.scss'
@@ -154,31 +154,48 @@ export const WaybillManagement = () => {
     };
 
     const onFinish = (values: any) => {
-        values.startTime = new Date(values.startTime).getTime()
-        values.startLocation = (cityMap.current.get(values.startLocationCode[0]) || '') + (cityMap.current.get(values.startLocationCode[1]) || '')
-        values.endLocation = (cityMap.current.get(values.endLocationCode[0]) || '') + (cityMap.current.get(values.endLocationCode[1]) || '')
-        values.startLocationCode = values.startLocationCode.join(',')
-        values.endLocationCode = values.endLocationCode.join(',')
-        values.driverName = driverMap.current.get(values.driverId)
-        values.fileList  = values.fileList.map((it: any) => it.url).join(',')
-        console.log(values)
-        setConfirmLoading(true)
-        createWaybill(values).then((res) => {
-            message.success('创建运单成功');
-            setOpen(false)
-            getWaybillListMethod()
-        }).catch(err => {
-            message.error('创建运单失败' + JSON.stringify(err))
-        }).finally(() => {
-            setConfirmLoading(false)
-        })
+        if (values.id !== undefined) {
+            values.endTime = new Date(values.endTime).getTime()
+            values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
+            setConfirmLoading(true)
+            finishWaybill(values.id, values.endTime, values.endFileList).then(_ => {
+                message.success('完成运单成功');
+                setOpen(false)
+                getWaybillListMethod()
+            }).catch(err => {
+                message.error('完成运单失败' + JSON.stringify(err))
+            }).finally(() => {
+                setConfirmLoading(false)
+            })
+        } else {
+            values.startTime = new Date(values.startTime).getTime()
+            values.startLocation = (cityMap.current.get(values.startLocationCode[0]) || '') + (cityMap.current.get(values.startLocationCode[1]) || '')
+            values.endLocation = (cityMap.current.get(values.endLocationCode[0]) || '') + (cityMap.current.get(values.endLocationCode[1]) || '')
+            values.startLocationCode = values.startLocationCode.join(',')
+            values.endLocationCode = values.endLocationCode.join(',')
+            values.driverName = driverMap.current.get(values.driverId)
+            values.fileList = values.fileList.map((it: any) => it.url).join(',')
+            console.log(values)
+            setConfirmLoading(true)
+            createWaybill(values).then((res) => {
+                message.success('创建运单成功');
+                setOpen(false)
+                getWaybillListMethod()
+            }).catch(err => {
+                message.error('创建运单失败' + JSON.stringify(err))
+            }).finally(() => {
+                setConfirmLoading(false)
+            })
+        }
+
     };
 
-    const onClickWaybillUpdate = (id:number) => {
+    const onClickWaybillUpdate = (id: number) => {
         getWaybillDetail(id).then(res => {
             form.setFieldsValue(res.data)
             form.setFieldsValue({
                 startTime: dayjs(new Date(res.data.startTime)),
+                endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)): null,
                 startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
                 fileList: res.data.fileList.split(",").map((it: string, index: number) => {
@@ -252,7 +269,7 @@ export const WaybillManagement = () => {
                 label: it[1]
             }
         })
-    },[])
+    }, [])
 
     return (
         <Fragment>
@@ -386,7 +403,7 @@ export const WaybillManagement = () => {
                         label="货物重量"
                         rules={[{ required: true, message: '请输入货物重量!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined}/>
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
                     </Form.Item>
                     <Form.Item
                         name="startLocationCode"
@@ -411,12 +428,12 @@ export const WaybillManagement = () => {
                     </Form.Item>
                     {
                         form.getFieldValue('id') && <Form.Item
-                        label="到达时间"
-                        name="endTime"
-                        rules={[{ required: true, message: '请上传照片!' }]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item>
+                            label="到达时间"
+                            name="endTime"
+                            rules={[{ required: true, message: '请选择到达时间!' }]}
+                        >
+                            <DatePicker showTime />
+                        </Form.Item>
                     }
                     <Form.Item
                         name="remark"
@@ -431,19 +448,19 @@ export const WaybillManagement = () => {
                         name="fileList"
                         rules={[{ required: true, message: '请上传照片!' }]}
                     >
-                        <AliyunOSSUpload key={"file_list"}/>
+                        <AliyunOSSUpload disabled={form.getFieldValue('id') !== undefined} key={"file_list"} />
                     </Form.Item>
                     {
                         form.getFieldValue('id') && <Form.Item
-                        label="到达后检查"
-                        name="endFileList"
-                        rules={[{ required: true, message: '请上传照片!' }]}
-                    >
-                        <AliyunOSSUpload key={"end_file_list"}/>
-                    </Form.Item>
+                            label="到达后检查"
+                            name="endFileList"
+                            rules={[{ required: true, message: '请上传照片!' }]}
+                        >
+                            <AliyunOSSUpload disabled={form.getFieldValue('status') != 1} key={"end_file_list"} />
+                        </Form.Item>
                     }
                     <Form.Item {...tailFormItemLayout}>
-                        {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) &&<Button type="primary" htmlType="submit">
+                        {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) && <Button type="primary" htmlType="submit">
                             {form.getFieldValue('id') ? "确认送达" : "提交"}
                         </Button>}
                     </Form.Item>
