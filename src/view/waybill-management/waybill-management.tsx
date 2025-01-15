@@ -9,6 +9,7 @@ import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility
 import { getUserByRole } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
 import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
+import { CityList, CityMap } from '../../utility/city-list';
 
 export const WaybillManagement = () => {
     const navigate = useNavigate()
@@ -21,9 +22,9 @@ export const WaybillManagement = () => {
     const [pageSize, setPageSize] = useState(10)
     const [total, setTotal] = useState(0)
     const searchOption = useRef<any>({})
-    const [cityList, setCityList] = useState<any[]>([])
+    //const [cityList, setCityList] = useState<any[]>([])
     const [driverList, setDriverList] = useState<{ label: string; value: string; }[]>([])
-    const cityMap = useRef(new Map<string, string>())
+    //const cityMap = useRef(CityMap)
     const driverMap = useRef(new Map<string, string>())
     const carNumberColorList = useRef<{ label: string; value: string; }[]>([])
 
@@ -48,14 +49,14 @@ export const WaybillManagement = () => {
             name: 'startLocationCode',
             label: '始发地',
             placeholder: '请选择始发地',
-            options: cityList
+            options: CityList
         },
         {
             type: 'cascader',
             name: 'endLocationCode',
             label: '目的地',
             placeholder: '请选择目的地',
-            options: cityList
+            options: CityList
         },
         {
             type: 'select',
@@ -127,6 +128,15 @@ export const WaybillManagement = () => {
 
     const onCreate = useCallback(() => {
         form.resetFields()
+        getUserByRole(2).then(res => {
+            setDriverList(res.data.map(it => {
+                return {
+                    value: it.id.toString(),
+                    label: it.userName
+                }
+            }))
+            driverMap.current = new Map(res.data.map(it => [it.id.toString(), it.userName]))
+        })
         setOpen(true)
     }, [])
 
@@ -169,8 +179,8 @@ export const WaybillManagement = () => {
             })
         } else {
             values.startTime = new Date(values.startTime).getTime()
-            values.startLocation = (cityMap.current.get(values.startLocationCode[0]) || '') + (cityMap.current.get(values.startLocationCode[1]) || '')
-            values.endLocation = (cityMap.current.get(values.endLocationCode[0]) || '') + (cityMap.current.get(values.endLocationCode[1]) || '')
+            values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
+            values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
             values.startLocationCode = values.startLocationCode.join(',')
             values.endLocationCode = values.endLocationCode.join(',')
             values.driverName = driverMap.current.get(values.driverId)
@@ -226,33 +236,6 @@ export const WaybillManagement = () => {
     }
 
     useEffect(() => {
-        getCityList().then(res => {
-            //const provinceList = new Set(res.data.filter(it => it.parentCode === "100000"))
-            setCityList(res.data.filter(it => it.parentCode === "100000").map(province => {
-                return {
-                    value: province.cityCode,
-                    label: province.cityName,
-                    children: res.data.filter(city => city.parentCode === province.cityCode).map(city => {
-                        return {
-                            value: city.cityCode,
-                            label: city.cityName,
-                            children: res.data.filter(district => district.parentCode === city.cityCode).map(district => {
-                                return {
-                                    value: district.cityCode,
-                                    label: district.cityName
-                                }
-                            })
-                        }
-                    })
-                }
-            }))
-            cityMap.current = new Map(res.data.map(it => [it.cityCode, it.cityName]))
-            // provinceList.forEach(it => {
-            //     cityMap.current.set(it, res.data.find(city => city.parentCode === it)?.parentName || '')
-            // })
-            //filters[2].options = cityList.current
-            //filters[3].options = cityList.current
-        })
         getWaybillListMethod()
         getUserByRole(2).then(res => {
             setDriverList(res.data.map(it => {
@@ -403,21 +386,21 @@ export const WaybillManagement = () => {
                         label="货物重量"
                         rules={[{ required: true, message: '请输入货物重量!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={form.getFieldValue('id') !== undefined} suffix="kg"/>
                     </Form.Item>
                     <Form.Item
                         name="startLocationCode"
                         label="始发地"
                         rules={[{ required: true, message: '请选择始发地!' }]}
                     >
-                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择始发地'} options={cityList} allowClear />
+                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择始发地'} options={CityList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="endLocationCode"
                         label="目的地"
                         rules={[{ required: true, message: '请选择目的地!' }]}
                     >
-                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={cityList} allowClear />
+                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={CityList} allowClear />
                     </Form.Item>
                     <Form.Item
                         label="出发时间"

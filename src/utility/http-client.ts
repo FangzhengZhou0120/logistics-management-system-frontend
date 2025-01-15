@@ -109,5 +109,5 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient(import.meta.env.REACT_APP_API_BASE_URL || 'http://localhost:7001')
+const httpClient = new HttpClient('http://localhost:7001')
 export default httpClient;
