@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./amap.scss";
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { WaybillInfo } from "../../api/waybill";
@@ -15,10 +15,14 @@ interface AMapComponentProps {
   waybill: WaybillInfo;
   positionInfo: CarPositionInfo;
   trajectoryInfo: TrajectoryInfo[];
+  isReplayMode?: boolean;
 }
 
-export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo }: AMapComponentProps) => {
-  let map: any = null;
+export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayMode }: AMapComponentProps) => {
+  let map = useRef<any>(null);
+  let car = useRef<any>(null);
+  let carPath = useRef<any>(null)
+  let passedPolyline = useRef<any>(null)
 
   useEffect(() => {
     window._AMapSecurityConfig = {
@@ -27,12 +31,12 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo }: AMapCom
     AMapLoader.load({
       key: "f665ab0ee4638e750d5da353cc3c879c", // 申请好的Web端开发者Key，首次调用 load 时必填
       version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-      plugins: ["AMap.Scale"], //需要使用的的插件列表，如比例尺'AMap.Scale'，支持添加多个如：['...','...']
+      plugins: ["AMap.Scale", "AMap.MoveAnimation"], //需要使用的的插件列表，如比例尺'AMap.Scale'，支持添加多个如：['...','...']
     })
       .then((AMap) => {
         const carPosition = wgs84togcj02(positionInfo.lon, positionInfo.lat);
         console.log(carPosition)
-        map = new AMap.Map("amap_container", {
+        map.current = new AMap.Map("amap_container", {
           // 设置地图容器id
           viewMode: "2D", // 是否为3D地图模式
           zoom: 11, // 初始化地图级别
@@ -44,15 +48,15 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo }: AMapCom
             <img src="https://cdn3.iconfinder.com/data/icons/set-cars-and-vehicles-etc/125/Vehicle_01-1024.png" alt="车辆图标" />
           </div>
         `
-        const marker = new AMap.Marker({
+        car.current = new AMap.Marker({
+          map: map.current,
           content: content, //自定义点标记覆盖物内容
           position: carPosition, //基点位置
           offset: new AMap.Pixel(-13, -30), //相对于基点的偏移位置
         });
-        map.add(marker);
 
-        const carPath = new AMap.Polyline({
-          map: map,
+        carPath.current = new AMap.Polyline({
+          map: map.current,
           path: trajectoryInfo.map((item) => {
             return wgs84togcj02(item.longitude, item.latitude);
           }), // 设置线覆盖物路径
@@ -62,16 +66,49 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo }: AMapCom
           strokeWeight: 6,      //线宽
           // strokeStyle: "solid"  //线样式
         });
-        map.add(carPath);
+
+        passedPolyline.current = new AMap.Polyline({
+          strokeColor: "#AF5",  //线颜色
+          strokeWeight: 6,      //线宽
+        })
       })
       .catch((e) => {
         console.log(e);
       });
 
     return () => {
-      map?.destroy();
+      map.current?.destroy();
     };
   }, []);
+
+  useEffect(() => {
+    if (isReplayMode && map.current) {
+      const lineArr = trajectoryInfo.map((item) => {
+        return wgs84togcj02(item.longitude, item.latitude);
+      })
+      carPath.current.setPath(lineArr);
+      map.current.add(passedPolyline.current)
+      car.current.setPosition(lineArr[0])
+      car.current.on('moving', function (e: any) {
+        passedPolyline.current.setPath(e.passedPath);
+        map.current.setCenter(e.target.getPosition(), true)
+      })
+      car.current.moveAlong(lineArr, {
+        // 每一段的时长
+        duration: 500,//可根据实际采集时间间隔设置
+        // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+        autoRotation: false,
+      });
+    } else if (!isReplayMode && map.current) {
+      const lineArr = trajectoryInfo.map((item) => {
+        return wgs84togcj02(item.longitude, item.latitude);
+      })
+      carPath.current.setPath(lineArr);
+      car.current.stopMove();
+      car.current.setPosition(wgs84togcj02(positionInfo.lon, positionInfo.lat))
+      map.current.remove(passedPolyline)
+    }
+  }, [isReplayMode, trajectoryInfo, positionInfo]);
 
   return (
     <div

@@ -1,8 +1,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
 import { cancelWaybill, createWaybill, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
-import { CloseOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
+import { CloseOutlined, PlayCircleOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-detail.scss'
 import { cargoTypeMap, waybillStatusMap } from '../../utility/constants';
@@ -17,6 +16,8 @@ export const WaybillDetail = () => {
     const [positionInfo, setPositionInfo] = useState<CarPositionInfo>();
     const [showWaybillModal, setShowWaybillModal] = useState(false);
     const [trajectoryInfo, setTrajectoryInfo] = useState<TrajectoryInfo[]>([]);
+    const [replayTime, setReplayTime] = useState<[dayjs.Dayjs, dayjs.Dayjs]>();
+    const [isReplayMode, setIsReplayMode] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -43,9 +44,41 @@ export const WaybillDetail = () => {
             })
         }
     },[waybill])
+
+    const onClickReplay = () => {
+        if (!replayTime) {
+            message.error('请选择回放时间');
+            return;
+        }
+        if(isReplayMode && waybill) {
+            getCarPosition(waybill.carNumber + '_' + waybill.carNumberColor, waybill.startLocationCode.split(',')[1], waybill.endLocationCode.split(',')[1]).then(res => {
+                setPositionInfo(res.data);
+            }).catch(err => {
+                message.error(err.message);
+            })
+
+            getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, waybill.startTime, waybill.endTime).then(res => {
+                setTrajectoryInfo(res.data);
+                setIsReplayMode(false);
+            }).catch(err => {
+                message.error(err.message);
+            })
+        } else if(!isReplayMode && waybill) {
+            getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, replayTime?.[0].unix() || 0, replayTime?.[1].unix() || 0).then(res => {
+                setTrajectoryInfo(res.data);
+                setIsReplayMode(true);
+            }).catch(err => {
+                message.error(err.message);
+            })
+        }
+    }
     return (
         <>
             <div className='waybill-detail-tool-bar'>
+                <div className='replay'>
+                    <DatePicker.RangePicker value={replayTime} onChange={(dates) => dates?.[0] && dates?.[1] ? setReplayTime([dates[0], dates[1]]) : undefined} showTime />
+                    <Button style={{marginLeft: '10px'}} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" :"回放"}</Button>
+                </div>
                 <div className='waybill-detail-tool-bar-right'><Button type='primary' icon={<UploadOutlined />} onClick={() => setShowWaybillModal(true)}>运单详情</Button></div>
             </div>
             {showWaybillModal && <div className='waybill-detail'>
@@ -89,7 +122,7 @@ export const WaybillDetail = () => {
                     </div>
                 </div>
             </div>}
-            {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo}/>}
+            {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo} isReplayMode={isReplayMode}/>}
         </>
     )
 }

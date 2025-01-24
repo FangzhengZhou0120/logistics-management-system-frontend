@@ -42,6 +42,10 @@ function App() {
     navigate(current)
   }, [current])
 
+  useEffect(() => {
+    setCurrent(location.pathname)
+  }, [location.pathname])
+
   return (
     <div className="App">
       <header className="App-header">
@@ -59,7 +63,7 @@ function App() {
         <Menu defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
       </div>
       <div className='content'>
-        {!location.pathname.includes('waybill-detail') && !location.pathname.includes('login') ? (
+        {!location.pathname.includes('waybill-detail') ? (
           <KeepAlive activeName={current} max={10} strategy={'LRU'}>
             {outlet}
           </KeepAlive>

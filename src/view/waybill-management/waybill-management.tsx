@@ -415,7 +415,7 @@ export const WaybillManagement = () => {
                             name="endTime"
                             rules={[{ required: true, message: '请选择到达时间!' }]}
                         >
-                            <DatePicker showTime />
+                            <DatePicker disabled={form.getFieldValue('status') != 1} showTime />
                         </Form.Item>
                     }
                     <Form.Item
