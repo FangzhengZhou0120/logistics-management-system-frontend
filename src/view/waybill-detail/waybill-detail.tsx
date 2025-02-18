@@ -92,10 +92,10 @@ export const WaybillDetail = () => {
                         <span>车牌号：</span>
                         <span>{waybill?.carNumber}</span>
                     </div>
-                    <div className='waybill-info-item'>
+                    {/* <div className='waybill-info-item'>
                         <span>司机姓名：</span>
                         <span>{waybill?.driverName}</span>
-                    </div>
+                    </div> */}
                     <div className='waybill-info-item'>
                         <span>起点：</span>
                         <span>{`${waybill?.startLocation} ${waybill?.startAddress}`}</span>

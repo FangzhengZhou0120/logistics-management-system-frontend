@@ -36,14 +36,14 @@ export const WaybillManagement = () => {
             placeholder: '请输入车牌号',
             options: []
         },
-        {
-            type: 'select',
-            multiple: true,
-            name: 'driverId',
-            label: '司机',
-            placeholder: '请选择司机',
-            options: driverList
-        },
+        // {
+        //     type: 'select',
+        //     multiple: true,
+        //     name: 'driverId',
+        //     label: '司机',
+        //     placeholder: '请选择司机',
+        //     options: driverList
+        // },
         {
             type: 'cascader',
             name: 'startLocationCode',
@@ -183,7 +183,7 @@ export const WaybillManagement = () => {
             values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
             values.startLocationCode = values.startLocationCode.join(',')
             values.endLocationCode = values.endLocationCode.join(',')
-            values.driverName = driverMap.current.get(values.driverId)
+            // values.driverName = driverMap.current.get(values.driverId)
             // values.fileList = values.fileList.map((it: any) => it.url).join(',')
             console.log(values)
             setConfirmLoading(true)
@@ -367,13 +367,13 @@ export const WaybillManagement = () => {
                     >
                         <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择车牌颜色'} options={carNumberColorList.current} allowClear />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="driverId"
                         label="司机"
                         rules={[{ required: true, message: '请选择司机!' }]}
                     >
                         <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择司机'} options={driverList} allowClear />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item
                         name="cargoType"
                         label="货物类型"

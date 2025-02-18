@@ -32,7 +32,7 @@ export const UserManagement = () => {
             name: 'role',
             label: '角色',
             placeholder: '请选择角色',
-            options: [{label: '管理员', value: '1'}, {label: '司机', value: '2'}]
+            options: [{label: '管理员', value: '1'}, {label: '司机', value: '2'}, {label:'客户', value: '3'}]
         },
     ]
 
