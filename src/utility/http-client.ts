@@ -109,5 +109,5 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient('http://localhost:7001')
+const httpClient = new HttpClient('https://guagualogistics.com/api')
 export default httpClient;
