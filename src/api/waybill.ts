@@ -10,6 +10,8 @@ export interface WaybillInfo {
     endLocation: string,
     startLocationCode: string,
     endLocationCode: string,
+    startAddress: string,
+    endAddress: string,
     startTime: number,
     endTime: number,
     status: number,
@@ -18,6 +20,11 @@ export interface WaybillInfo {
     fileList: string,
     endFileList: string,
     remark: string,
+    sender: string,
+    senderPhone: string,
+    receiver: string,
+    receiverPhone: string,
+    clientName: string,
     key?: number
 }
 
@@ -35,6 +42,13 @@ export interface WaybillCreateForm {
     cargoWeight: number,
     fileList?: string,
     remark?: string,
+    startAddress: string,
+    endAddress: string,
+    sender: string,
+    senderPhone: string,
+    receiver: string,
+    receiverPhone: string,
+    clientName: string,
 }
 
 export interface CityInfo {

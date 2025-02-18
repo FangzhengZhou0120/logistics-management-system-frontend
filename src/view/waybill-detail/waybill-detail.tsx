@@ -98,11 +98,11 @@ export const WaybillDetail = () => {
                     </div>
                     <div className='waybill-info-item'>
                         <span>起点：</span>
-                        <span>{waybill?.startLocation}</span>
+                        <span>{`${waybill?.startLocation} ${waybill?.startAddress}`}</span>
                     </div>
                     <div className='waybill-info-item'>
                         <span>终点：</span>
-                        <span>{waybill?.endLocation}</span>
+                        <span>{`${waybill?.endLocation} ${waybill?.endAddress}`}</span>
                     </div>
                     <div className='waybill-info-item'>
                         <span>货物类型：</span>

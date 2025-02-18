@@ -166,7 +166,7 @@ export const WaybillManagement = () => {
     const onFinish = (values: any) => {
         if (values.id !== undefined) {
             values.endTime = new Date(values.endTime).getTime()
-            values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
+            //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
             setConfirmLoading(true)
             finishWaybill(values.id, values.endTime, values.endFileList).then(_ => {
                 message.success('完成运单成功');
@@ -184,7 +184,7 @@ export const WaybillManagement = () => {
             values.startLocationCode = values.startLocationCode.join(',')
             values.endLocationCode = values.endLocationCode.join(',')
             values.driverName = driverMap.current.get(values.driverId)
-            values.fileList = values.fileList.map((it: any) => it.url).join(',')
+            // values.fileList = values.fileList.map((it: any) => it.url).join(',')
             console.log(values)
             setConfirmLoading(true)
             createWaybill(values).then((res) => {
@@ -208,22 +208,22 @@ export const WaybillManagement = () => {
                 endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)): null,
                 startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
-                fileList: res.data.fileList.split(",").map((it: string, index: number) => {
-                    return {
-                        uid: index,
-                        name: it,
-                        status: 'done',
-                        url: it
-                    }
-                }),
-                endFileList: res.data.endFileList.length > 0 ? res.data.endFileList.split(",").map((it: string, index: number) => {
-                    return {
-                        uid: index,
-                        name: it,
-                        status: 'done',
-                        url: it
-                    }
-                }) : []
+                // fileList: res.data.fileList.split(",").map((it: string, index: number) => {
+                //     return {
+                //         uid: index,
+                //         name: it,
+                //         status: 'done',
+                //         url: it
+                //     }
+                // }),
+                // endFileList: res.data.endFileList.length > 0 ? res.data.endFileList.split(",").map((it: string, index: number) => {
+                //     return {
+                //         uid: index,
+                //         name: it,
+                //         status: 'done',
+                //         url: it
+                //     }
+                // }) : []
             })
             setOpen(true)
         }).catch(err => {
@@ -365,7 +365,7 @@ export const WaybillManagement = () => {
                         label="车牌颜色"
                         rules={[{ required: true, message: '请选择车牌颜色!' }]}
                     >
-                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择车辆颜色'} options={carNumberColorList.current} allowClear />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择车牌颜色'} options={carNumberColorList.current} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="driverId"
@@ -396,6 +396,13 @@ export const WaybillManagement = () => {
                         <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择始发地'} options={CityList} allowClear />
                     </Form.Item>
                     <Form.Item
+                        name="startAddress"
+                        label="始发地详细地址"
+                        rules={[{ required: true, message: '请输入始发地详细地址!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
                         name="endLocationCode"
                         label="目的地"
                         rules={[{ required: true, message: '请选择目的地!' }]}
@@ -403,7 +410,14 @@ export const WaybillManagement = () => {
                         <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={CityList} allowClear />
                     </Form.Item>
                     <Form.Item
-                        label="出发时间"
+                        name="endAddress"
+                        label="目的地详细地址"
+                        rules={[{ required: true, message: '请输入目的地详细地址!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        label="发货时间"
                         name="startTime"
                         rules={[{ required: true, message: '请选择出发时间!' }]}
                     >
@@ -419,6 +433,41 @@ export const WaybillManagement = () => {
                         </Form.Item>
                     }
                     <Form.Item
+                        name="clientName"
+                        label="客户公司名称"
+                        rules={[{ required: true, message: '请输入客户公司名称!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        name="sender"
+                        label="下单人"
+                        rules={[{ required: true, message: '请输入下单人姓名!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        name="senderPhone"
+                        label="下单人手机号"
+                        rules={[{ required: true, message: '请输入下单人手机号!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        name="receiver"
+                        label="收货人"
+                        rules={[{ required: true, message: '请输入收货人姓名!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
+                        name="receiverPhone"
+                        label="收货人手机号"
+                        rules={[{ required: true, message: '请输入收货人手机号!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                    </Form.Item>
+                    <Form.Item
                         name="remark"
                         label="备注"
                     // rules={[{ required: true, message: 'Please input the description' }]}
@@ -426,7 +475,7 @@ export const WaybillManagement = () => {
                         <Input.TextArea showCount maxLength={200} />
                     </Form.Item>
 
-                    <Form.Item
+                    {/* <Form.Item
                         label="出发前检查"
                         name="fileList"
                         rules={[{ required: true, message: '请上传照片!' }]}
@@ -441,7 +490,7 @@ export const WaybillManagement = () => {
                         >
                             <AliyunOSSUpload disabled={form.getFieldValue('status') != 1} key={"end_file_list"} />
                         </Form.Item>
-                    }
+                    } */}
                     <Form.Item {...tailFormItemLayout}>
                         {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) && <Button type="primary" htmlType="submit">
                             {form.getFieldValue('id') ? "确认送达" : "提交"}
