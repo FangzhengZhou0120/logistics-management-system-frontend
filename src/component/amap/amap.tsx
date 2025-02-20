@@ -62,13 +62,14 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
           }), // 设置线覆盖物路径
           showDir: true,
           strokeColor: "#28F",  //线颜色
-          // strokeOpacity: 1,     //线透明度
+          strokeOpacity: 1,     //线透明度
           strokeWeight: 6,      //线宽
           // strokeStyle: "solid"  //线样式
         });
 
         passedPolyline.current = new AMap.Polyline({
           strokeColor: "#AF5",  //线颜色
+          strokeOpacity: 1,
           strokeWeight: 6,      //线宽
         })
       })
@@ -106,7 +107,7 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
       carPath.current.setPath(lineArr);
       car.current.stopMove();
       car.current.setPosition(wgs84togcj02(positionInfo.lon, positionInfo.lat))
-      map.current.remove(passedPolyline)
+      map.current.remove(passedPolyline.current)
     }
   }, [isReplayMode, trajectoryInfo, positionInfo]);
 
