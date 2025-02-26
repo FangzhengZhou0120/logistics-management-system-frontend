@@ -52,3 +52,7 @@ export const updateOrder = async (data: OrderInfo) => {
 export const deleteOrder = async (id: number) => {
     return HttpClient.post<undefined>('/order/delete', {id})
 }
+
+export const finishOrderMethod = async (id: number) => {
+    return HttpClient.post<undefined>('/order/finish', {id})
+}

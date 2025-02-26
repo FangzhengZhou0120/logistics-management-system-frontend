@@ -22,23 +22,23 @@ const router = createBrowserRouter([
 
             {
                 path: "waybill-list",
-                element: <WaybillManagement />
+                element: <AuthGuard><WaybillManagement /></AuthGuard>
             },
             {
                 path: "user-list",
-                element: <UserManagement />
+                element: <AuthGuard><UserManagement /></AuthGuard>
             },
             {
                 path: "waybill-detail/:id",
-                element: <WaybillDetail />
+                element: <AuthGuard><WaybillDetail /></AuthGuard>
             },
             {
                 path: "order-list",
-                element: <OrderManagement />
+                element: <AuthGuard><OrderManagement /></AuthGuard>
             },
             {
                 path: "client-list",
-                element: <ClientManagement />
+                element: <AuthGuard><ClientManagement /></AuthGuard>
             }
         ]
     },

@@ -26,3 +26,7 @@ export const createClient = async (client: ClientCreateForm) => {
 export const updateClient = async (client: ClientInfo) => {
     return HttpClient.post<undefined>('/client/update', client)
 }
+
+export const getAllClients = async () => {
+    return HttpClient.get<ClientInfo[]>('/client/all')
+}

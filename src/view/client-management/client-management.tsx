@@ -32,7 +32,7 @@ export const ClientManagement = () => {
             setData(res.data.rows)
             setTotal(res.data.count)
         }).catch(err => {
-            message.error("获取公司列表失败", err.message)
+            message.error("获取公司列表失败" + err.message)
         })
     }
 
@@ -164,7 +164,7 @@ export const ClientManagement = () => {
                     }
                     <Form.Item
                         name="clientName"
-                        label="姓名"
+                        label="公司名称"
                         rules={[{ required: true, message: '请输入客户公司名称!' }]}
                     >
                         <Input />

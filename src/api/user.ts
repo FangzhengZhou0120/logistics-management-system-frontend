@@ -9,6 +9,8 @@ export interface UserInfo {
     role: number,
     remark: string,
     password: string,
+    clientId: number,
+    clientName: string,
     key?: number
 }
 
@@ -17,7 +19,9 @@ export interface UserCreateForm {
     phone: string,
     role: string,
     remark: string,
-    password: string
+    password: string,
+    clientId: number,
+    clientName: string,
 }
 
 export const getUserListMethod = async (pageIndex: number, pageSize: number, options: any) => {

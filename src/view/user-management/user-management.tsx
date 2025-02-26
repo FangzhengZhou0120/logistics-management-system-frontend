@@ -42,7 +42,7 @@ export const UserManagement = () => {
             setData(res.data.rows)
             setTotal(res.data.count)
         }).catch(err => {
-            message.error("获取用户列表失败", err.message)
+            message.error("获取用户列表失败"+err.message)
         })
     }
 

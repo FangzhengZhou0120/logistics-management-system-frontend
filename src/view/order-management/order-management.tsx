@@ -8,7 +8,9 @@ import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility
 import { getUserByRole } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
 import { CityList, CityMap } from '../../utility/city-list';
-import { createOrder, deleteOrder, getOrderList, OrderInfo, updateOrder } from '../../api/order';
+import { createOrder, deleteOrder, finishOrderMethod, getOrderList, OrderInfo, updateOrder } from '../../api/order';
+import { useAuth } from '../../context/user-context';
+import { getAllClients } from '../../api/client';
 
 export const OrderManagement = () => {
     const navigate = useNavigate()
@@ -21,12 +23,14 @@ export const OrderManagement = () => {
     const [pageSize, setPageSize] = useState(10)
     const [total, setTotal] = useState(0)
     const searchOption = useRef<any>({})
+    const { user } = useAuth()
     // const [cityList, setCityList] = useState<any[]>([])
     // const [driverList, setDriverList] = useState<{ label: string; value: string; }[]>([])
     // const cityMap = useRef(CityMap)
     const driverMap = useRef(new Map<string, string>())
     const carNumberColorList = useRef<{ label: string; value: string; }[]>([])
     const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
+    const clientMap = useRef(new Map<string, string>())
 
     const filters: SearchFilter[] = [
         {
@@ -72,7 +76,7 @@ export const OrderManagement = () => {
             setData(res.data.rows)
             setTotal(res.data.count)
         }).catch(err => {
-            message.error("获取订单列表失败", err.message)
+            message.error("获取订单列表失败"+err.message)
         })
     }
 
@@ -96,6 +100,11 @@ export const OrderManagement = () => {
 
     const onCreate = useCallback(() => {
         form.resetFields()
+        form.setFieldsValue({
+            sender: user?.userName,
+            senderPhone: user?.phone,
+            clientId: user?.role === 1 ? undefined : user?.clientId.toString(),
+        })
         setOpen(true)
     }, [])
 
@@ -108,6 +117,16 @@ export const OrderManagement = () => {
         })
 
     };
+
+    const finishOrder = (id: number) => {
+        finishOrderMethod(id).then(_ => {
+            setOpen(false)
+            getOrderListMethod()
+            message.success('完成订单成功')
+        }).catch(err => {
+            message.error('完成订单失败' + JSON.stringify(err))
+        })
+    }
 
     const tailFormItemLayout = {
         wrapperCol: {
@@ -141,9 +160,10 @@ export const OrderManagement = () => {
         values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
         //values.startLocationCode = values.startLocationCode.join(',')
         values.endLocationCode = values.endLocationCode.join(',')
+        values.clientId = Number(values.clientId)
+        values.clientName = clientMap.current.get(values.clientId.toString())
         // values.driverName = driverMap.current.get(values.driverId)
         // values.fileList = values.fileList.map((it: any) => it.url).join(',')
-        console.log(values)
         setConfirmLoading(true)
         createOrder(values).then((res) => {
             message.success('创建订单成功');
@@ -161,17 +181,16 @@ export const OrderManagement = () => {
         form.setFieldsValue(record)
         form.setFieldsValue({
             endLocationCode: record.endLocationCode.split(','),
+            clientId: record.clientId.toString(),
         })
         setOpen(true)
     }
 
     useEffect(() => {
         getOrderListMethod()
-        carNumberColorList.current = Array.from(carNumberColorMap).map(it => {
-            return {
-                value: it[0].toString(),
-                label: it[1]
-            }
+        getAllClients().then(res => {
+            setClientList(res.data.map(it => ({ label: it.clientName, value: it.id.toString() })))
+            res.data.forEach(it => clientMap.current.set(it.id.toString(), it.clientName))
         })
     }, [])
 
@@ -287,25 +306,25 @@ export const OrderManagement = () => {
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
-                        name="clientName"
+                        name="clientId"
                         label="客户公司名称"
-                        rules={[{ required: true, message: '请输入客户公司名称!' }]}
+                        rules={[{ required: true, message: '请选择客户公司!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Select disabled={user?.role !== 1} placeholder={'请选择客户公司'} options={clientList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="sender"
                         label="下单人"
                         rules={[{ required: true, message: '请输入下单人姓名!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={user?.role !== 1} />
                     </Form.Item>
                     <Form.Item
                         name="senderPhone"
                         label="下单人手机号"
                         rules={[{ required: true, message: '请输入下单人手机号!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={user?.role !== 1} />
                     </Form.Item>
                     <Form.Item
                         name="receiver"
@@ -332,6 +351,7 @@ export const OrderManagement = () => {
                         {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) && <Button type="primary" htmlType="submit">
                             提交
                         </Button>}
+                        {form.getFieldValue('status') == 1 && <Button style={{marginLeft: '10px'}} type="primary" onClick={() => finishOrder(form.getFieldValue('id'))}> 已完成 </Button>} 
                     </Form.Item>
                 </Form>
             </Modal>
