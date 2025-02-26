@@ -8,6 +8,8 @@ import { WaybillDetail } from "./view/waybill-detail/waybill-detail";
 import { Login } from "./view/login/login";
 import { AuthProvider } from "./context/user-context";
 import { AuthGuard } from "./component/auth-guard/auth-guard";
+import { OrderManagement } from "./view/order-management/order-management";
+import { ClientManagement } from "./view/client-management/client-management";
 
 const router = createBrowserRouter([
     {
@@ -20,15 +22,23 @@ const router = createBrowserRouter([
 
             {
                 path: "waybill-list",
-                element: <AuthGuard><WaybillManagement /></AuthGuard>
+                element: <WaybillManagement />
             },
             {
                 path: "user-list",
-                element: <AuthGuard><UserManagement /></AuthGuard>
+                element: <UserManagement />
             },
             {
                 path: "waybill-detail/:id",
-                element: <AuthGuard><WaybillDetail /></AuthGuard>
+                element: <WaybillDetail />
+            },
+            {
+                path: "order-list",
+                element: <OrderManagement />
+            },
+            {
+                path: "client-list",
+                element: <ClientManagement />
             }
         ]
     },

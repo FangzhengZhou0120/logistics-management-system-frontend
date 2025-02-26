@@ -1,18 +1,16 @@
 import { Children, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
-import { cancelWaybill, createWaybill, finishWaybill, getCityList, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
 import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import './waybill-management.scss'
+import './order-management.scss'
 import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility/constants';
 import { getUserByRole } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
-import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
 import { CityList, CityMap } from '../../utility/city-list';
-import { createOrder, deleteOrder, getOrderList, OrderInfo } from '../../api/order';
+import { createOrder, deleteOrder, getOrderList, OrderInfo, updateOrder } from '../../api/order';
 
-export const WaybillManagement = () => {
+export const OrderManagement = () => {
     const navigate = useNavigate()
     const { Column } = Table
     const [form] = Form.useForm()
@@ -125,6 +123,19 @@ export const WaybillManagement = () => {
     };
 
     const onFinish = (values: any) => {
+        if(values.id) {
+            values.id = parseInt(values.id)
+            updateOrder(values).then((res) => {
+                message.success('更新订单成功');
+                setOpen(false)
+                getOrderListMethod()
+            }).catch(err => {
+                message.error('更新订单失败' + JSON.stringify(err))
+            }).finally(() => {
+                setConfirmLoading(false)
+            })
+            return
+        }
         //values.startTime = new Date(values.startTime).getTime()
         //values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
         values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
@@ -252,7 +263,7 @@ export const WaybillManagement = () => {
                         label="货物类型"
                         rules={[{ required: true, message: '请选择货物类型!' }]}
                     >
-                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[4].options} allowClear />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[0].options} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="cargoCount"
@@ -266,14 +277,14 @@ export const WaybillManagement = () => {
                         label="目的地"
                         rules={[{ required: true, message: '请选择目的地!' }]}
                     >
-                        <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={CityList} allowClear />
+                        <Cascader disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} placeholder={'请选择目的地'} options={CityList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="endAddress"
                         label="目的地详细地址"
                         rules={[{ required: true, message: '请输入目的地详细地址!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
                         name="clientName"
@@ -301,14 +312,14 @@ export const WaybillManagement = () => {
                         label="收货人"
                         rules={[{ required: true, message: '请输入收货人姓名!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
                         name="receiverPhone"
                         label="收货人手机号"
                         rules={[{ required: true, message: '请输入收货人手机号!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
                         name="remark"

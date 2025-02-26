@@ -57,9 +57,9 @@ class HttpClient {
             console.error(data.message || 'request error');
           }
         } else if (error.request) {
-          console.error('request error', error.message);
+          console.error('request error' + error.message);
         } else {
-          console.error('request config error', error.message);
+          console.error('request config error' + error.message);
         }
         return Promise.reject(error);
       }

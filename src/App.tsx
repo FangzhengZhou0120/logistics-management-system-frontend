@@ -3,7 +3,7 @@ import { useOutlet, useNavigate } from 'react-router-dom';
 import KeepAlive from 'keepalive-for-react'
 import './App.css'
 import { Avatar, Menu, MenuProps } from 'antd';
-import { TruckOutlined, UserOutlined } from '@ant-design/icons';
+import { ShopOutlined, SolutionOutlined, TruckOutlined, UserOutlined } from '@ant-design/icons';
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { useAuth } from './context/user-context';
 import { logout } from './api/user';
@@ -16,6 +16,11 @@ function App() {
   const [current, setCurrent] = useState(location.pathname === '/' ? '/waybill-list' : location.pathname)
   const items: MenuItem[] = [
     {
+      label: '订单管理',
+      key: '/order-list',
+      icon: <SolutionOutlined />,
+    },
+    {
       label: '运单中心',
       key: '/waybill-list',
       icon: <TruckOutlined />,
@@ -24,7 +29,12 @@ function App() {
       label: '用户管理',
       key: '/user-list',
       icon: <UserOutlined />,
-    }
+    },
+    {
+      label: '客户管理',
+      key: '/client-list',
+      icon: <ShopOutlined />,
+    },
   ]
 
   const onClick: MenuProps['onClick'] = (e) => {

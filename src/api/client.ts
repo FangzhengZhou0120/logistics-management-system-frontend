@@ -15,7 +15,7 @@ export interface ClientCreateForm {
     remark: string
 }
 
-export const getClientList = async (pageIndex: number, pageSize: number, options: any) => {
+export const getClientListData = async (pageIndex: number, pageSize: number, options: any) => {
     return HttpClient.post<PageData<ClientInfo>>('/client/list', {pageIndex, pageSize, ...options})
 }
 
