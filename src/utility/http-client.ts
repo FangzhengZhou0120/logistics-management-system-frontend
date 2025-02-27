@@ -109,5 +109,5 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient('http://guagualogistics.com/api')
+const httpClient = new HttpClient('https://guagualogistics.com/api')
 export default httpClient;
