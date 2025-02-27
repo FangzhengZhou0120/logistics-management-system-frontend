@@ -25,7 +25,7 @@ export const Login = () => {
             message.success('登录成功!');
             navigate('/waybill-list');
             // TODO: Handle successful login (e.g., redirect to dashboard)
-        } catch (error:any) {
+        } catch (error: any) {
             console.error(error);
         } finally {
             setLoading(false);
@@ -35,7 +35,7 @@ export const Login = () => {
     return (
         <div className="login-container">
             <div className="login-box">
-                <h1 style={{color: 'black'}}>呱呱物流管理系统</h1>
+                <h1 style={{ color: 'black' }}>呱呱物流管理系统</h1>
                 <Form
                     name="login"
                     onFinish={onFinish}
@@ -74,7 +74,7 @@ export const Login = () => {
                                 left: indicatorBorderWidth,
                                 width: controlButtonWidth
                             }}
-                            onVerify={(data:any) => {
+                            onVerify={(data: any) => {
                                 console.log(data);
                                 if (data.x === controlBarWidth - controlButtonWidth - indicatorBorderWidth) {
                                     setCanLogin(true);
@@ -93,6 +93,9 @@ export const Login = () => {
                     </Form.Item>
                 </Form>
             </div>
+            <footer className="App-footer">
+                <a href="https://beian.miit.gov.cn/" target="_blank">© {new Date().getFullYear()} 呱呱物流 | 备案号：粤ICP备2025376846号-1</a>
+            </footer>
         </div>
     );
 };

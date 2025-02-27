@@ -81,6 +81,9 @@ function App() {
           </KeepAlive>
         ) : outlet}
       </div>
+      <footer className="App-footer">
+        <a href="https://beian.miit.gov.cn/" target="_blank">© {new Date().getFullYear()} 呱呱物流 | 备案号：粤ICP备2025376846号-1</a>
+      </footer>
     </div>
   )
 }
