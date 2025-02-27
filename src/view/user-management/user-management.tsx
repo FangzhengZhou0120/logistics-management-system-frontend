@@ -116,7 +116,7 @@ export const UserManagement = () => {
 
     const onFinish = (values: any) => {
         values.clientName = clientMap.current.get(values.clientId)
-        values.clientId = Number(values.clientId)
+        values.clientId = values.clientId ? Number(values.clientId) : 0
         if(values.id) {
             updateUser(values).then((res) => {
                 message.success('更新用户成功');
