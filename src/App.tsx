@@ -62,7 +62,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          <h3>呱呱物流管理后台</h3>
+          <h3 style={{color:'black'}}>呱呱物流管理后台</h3>
         </div>
         <div className='user-info'>
         <Avatar style={{ backgroundColor: '#f56a00', verticalAlign: 'middle', marginRight: '5px' }} size="large" gap={2}>
