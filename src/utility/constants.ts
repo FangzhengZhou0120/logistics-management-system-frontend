@@ -19,3 +19,9 @@ export const carNumberColorMap = new Map([
     [2, "黄色"],
     [3, "黄绿"],
 ]);
+
+export const roleMap = new Map([
+    [1, "管理员"],
+    [2, "司机"],
+    [3, "客户"],
+]);

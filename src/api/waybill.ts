@@ -25,6 +25,8 @@ export interface WaybillInfo {
     receiver: string,
     receiverPhone: string,
     clientName: string,
+    clientId: number,
+    orderId: number,
     key?: number
 }
 
@@ -48,6 +50,8 @@ export interface WaybillCreateForm {
     senderPhone: string,
     receiver: string,
     receiverPhone: string,
+    clientId: number,
+    orderId: number,
     clientName: string,
 }
 

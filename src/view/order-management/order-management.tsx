@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { CityList, CityMap } from '../../utility/city-list';
 import { createOrder, deleteOrder, finishOrderMethod, getOrderList, OrderInfo, updateOrder } from '../../api/order';
 import { useAuth } from '../../context/user-context';
-import { getAllClients } from '../../api/client';
+import { getAllClients, updateClient } from '../../api/client';
 
 export const OrderManagement = () => {
     const navigate = useNavigate()
@@ -100,6 +100,7 @@ export const OrderManagement = () => {
 
     const onCreate = useCallback(() => {
         form.resetFields()
+        updateClients()
         form.setFieldsValue({
             sender: user?.userName,
             senderPhone: user?.phone,
@@ -178,6 +179,7 @@ export const OrderManagement = () => {
     };
 
     const onClickOrderDetail = (record: OrderInfo) => {
+        updateClients()
         form.setFieldsValue(record)
         form.setFieldsValue({
             endLocationCode: record.endLocationCode.split(','),
@@ -185,13 +187,16 @@ export const OrderManagement = () => {
         })
         setOpen(true)
     }
-
-    useEffect(() => {
-        getOrderListMethod()
+    const updateClients = () => {
         getAllClients().then(res => {
             setClientList(res.data.map(it => ({ label: it.clientName, value: it.id.toString() })))
             res.data.forEach(it => clientMap.current.set(it.id.toString(), it.clientName))
         })
+    }
+
+    useEffect(() => {
+        getOrderListMethod()
+        updateClients()
     }, [])
 
     return (
@@ -233,7 +238,7 @@ export const OrderManagement = () => {
                         render={(_: any, record: OrderInfo) => (
                             <Space size="middle">
                                 <a onClick={() => onClickOrderDetail(record)}><EyeOutlined />查看</a>
-                                <Popconfirm
+                                {record.status !== 99 && <Popconfirm
                                     title="取消订单"
                                     description="是否确定取消订单?"
                                     onConfirm={(e) => confirmAbort(record.id)}
@@ -241,7 +246,8 @@ export const OrderManagement = () => {
                                     cancelText="否"
                                 >
                                     <a><StopOutlined />取消</a>
-                                </Popconfirm>
+                                </Popconfirm>}
+                                {record.status === 99 && <span style={{color: 'gray'}}><StopOutlined />取消</span>}
                             </Space>
                         )}
                     />

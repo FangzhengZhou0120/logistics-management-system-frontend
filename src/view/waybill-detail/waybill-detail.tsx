@@ -89,6 +89,14 @@ export const WaybillDetail = () => {
                         <span>{waybill?.id}</span>
                     </div>
                     <div className='waybill-info-item'>
+                        <span>关联订单：</span>
+                        <span>{waybill?.orderId}</span>
+                    </div>
+                    <div className='waybill-info-item'>
+                        <span>客户：</span>
+                        <span>{waybill?.clientName}</span>
+                    </div>
+                    <div className='waybill-info-item'>
                         <span>车牌号：</span>
                         <span>{waybill?.carNumber}</span>
                     </div>
@@ -119,6 +127,10 @@ export const WaybillDetail = () => {
                     <div className='waybill-info-item'>
                         <span>备注：</span>
                         <span>{waybill?.remark}</span>
+                    </div>
+                    <div className='waybill-info-item'>
+                        <span>车辆当前位置：</span>
+                        <span>{positionInfo?.adr}</span>
                     </div>
                 </div>
             </div>}

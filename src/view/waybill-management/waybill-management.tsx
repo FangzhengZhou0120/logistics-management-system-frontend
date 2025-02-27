@@ -10,6 +10,10 @@ import { getUserByRole } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
 import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
 import { CityList, CityMap } from '../../utility/city-list';
+import { getAllOrders, getOrderDetail } from '../../api/order';
+import { get } from 'http';
+import { getAllClients } from '../../api/client';
+import { useAuth } from '../../context/user-context';
 
 export const WaybillManagement = () => {
     const navigate = useNavigate()
@@ -27,6 +31,10 @@ export const WaybillManagement = () => {
     //const cityMap = useRef(CityMap)
     const driverMap = useRef(new Map<string, string>())
     const carNumberColorList = useRef<{ label: string; value: string; }[]>([])
+    const orderList = useRef<any[]>([])
+    const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
+    const clientMap = useRef(new Map<string, string>())
+    const {user} = useAuth()
 
     const filters: SearchFilter[] = [
         {
@@ -127,7 +135,12 @@ export const WaybillManagement = () => {
     }
 
     const onCreate = useCallback(() => {
+        if(user?.role !== 1) {
+            message.error('权限不足')
+            return
+        }
         form.resetFields()
+        updateClients()
         getUserByRole(2).then(res => {
             setDriverList(res.data.map(it => {
                 return {
@@ -185,6 +198,7 @@ export const WaybillManagement = () => {
             values.endLocationCode = values.endLocationCode.join(',')
             // values.driverName = driverMap.current.get(values.driverId)
             // values.fileList = values.fileList.map((it: any) => it.url).join(',')
+            values.clientName = clientMap.current.get(values.clientId)
             console.log(values)
             setConfirmLoading(true)
             createWaybill(values).then((res) => {
@@ -201,11 +215,12 @@ export const WaybillManagement = () => {
     };
 
     const onClickWaybillUpdate = (id: number) => {
+        updateClients()
         getWaybillDetail(id).then(res => {
             form.setFieldsValue(res.data)
             form.setFieldsValue({
                 startTime: dayjs(new Date(res.data.startTime)),
-                endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)): null,
+                endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)) : null,
                 startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
                 // fileList: res.data.fileList.split(",").map((it: string, index: number) => {
@@ -235,6 +250,33 @@ export const WaybillManagement = () => {
         navigate('/waybill-detail/' + id)
     }
 
+    const onSelectOrder = (value: any) => {
+        getOrderDetail(value).then(res => {
+            form.setFieldsValue({
+                clientId: res.data.clientId.toString(),
+                clientName: res.data.clientName,
+                sender: res.data.sender,
+                senderPhone: res.data.senderPhone,
+                receiver: res.data.receiver,
+                receiverPhone: res.data.receiverPhone,
+                endLocationCode: res.data.endLocationCode.split(','),
+                endAddress: res.data.endAddress,
+                cargoType: res.data.cargoType.toString(),
+            })
+        }).catch(err => {
+            message.error(err.message)
+        })
+    }
+
+    const updateClients = () => {
+        getAllClients().then(res => {
+            setClientList(res.data.map(it => ({ label: it.clientName, value: it.id.toString() })))
+            res.data.forEach(it => clientMap.current.set(it.id.toString(), it.clientName))
+        }).catch(err => {
+            message.error('获取客户列表失败' + JSON.stringify(err))
+        })
+    }
+
     useEffect(() => {
         getWaybillListMethod()
         getUserByRole(2).then(res => {
@@ -252,6 +294,15 @@ export const WaybillManagement = () => {
                 label: it[1]
             }
         })
+        getAllOrders().then(res => {
+            orderList.current = res.data.map(it => {
+                return {
+                    value: it.id.toString(),
+                    label: it.id.toString()
+                }
+            })
+        })
+        updateClients()
     }, [])
 
     return (
@@ -272,7 +323,7 @@ export const WaybillManagement = () => {
                     }}>
                     <Column title="运单ID" dataIndex="id" key="waybillId" />
                     <Column title="车牌号" dataIndex="carNumber" key="carNumber" />
-                    <Column title="司机" dataIndex="driverName" key="driverName" />
+                    <Column title="客户" dataIndex="clientName" key="clientName" />
                     <Column title="运单状态" dataIndex="status" key="status" render={
                         (status: number) => {
                             return <span>{waybillStatusMap.get(status)}</span>
@@ -309,7 +360,7 @@ export const WaybillManagement = () => {
                             <Space size="middle">
                                 <a onClick={() => onClickWaybillDetail(record.id)}><EyeOutlined />查看</a>
                                 <a onClick={() => onClickWaybillUpdate(record.id)}><EditOutlined />更新</a>
-                                <Popconfirm
+                                {record.status !== 99 && <Popconfirm
                                     title="取消运单"
                                     description="是否确定取消运单?"
                                     onConfirm={(e) => confirmAbort(record.id)}
@@ -317,7 +368,8 @@ export const WaybillManagement = () => {
                                     cancelText="否"
                                 >
                                     <a><StopOutlined />取消</a>
-                                </Popconfirm>
+                                </Popconfirm>}
+                                {record.status === 99 && <span style={{color: 'gray'}}><StopOutlined />取消</span>}
                             </Space>
                         )}
                     />
@@ -354,6 +406,13 @@ export const WaybillManagement = () => {
                         </Form.Item>
                     }
                     <Form.Item
+                        name="orderId"
+                        label="关联订单号"
+                        rules={[{ required: true, message: '请选择关联订单号!' }]}
+                    >
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择关联订单号'} options={orderList.current} allowClear onChange={value => onSelectOrder(value)} />
+                    </Form.Item>
+                    <Form.Item
                         name="carNumber"
                         label="车牌号"
                         rules={[{ required: true, message: '请输入车牌号!' }]}
@@ -379,14 +438,14 @@ export const WaybillManagement = () => {
                         label="货物类型"
                         rules={[{ required: true, message: '请选择货物类型!' }]}
                     >
-                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[4].options} allowClear />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[3].options} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="cargoWeight"
                         label="货物重量"
                         rules={[{ required: true, message: '请输入货物重量!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} suffix="kg"/>
+                        <Input disabled={form.getFieldValue('id') !== undefined} suffix="kg" />
                     </Form.Item>
                     <Form.Item
                         name="startLocationCode"
@@ -433,11 +492,11 @@ export const WaybillManagement = () => {
                         </Form.Item>
                     }
                     <Form.Item
-                        name="clientName"
+                        name="clientId"
                         label="客户公司名称"
-                        rules={[{ required: true, message: '请输入客户公司名称!' }]}
+                        rules={[{ required: true, message: '请选择客户公司名称!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择客户公司名称'} options={clientList} allowClear />
                     </Form.Item>
                     <Form.Item
                         name="sender"

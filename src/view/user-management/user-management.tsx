@@ -5,8 +5,9 @@ import { cancelWaybill, createWaybill, getWaybillList, WaybillInfo } from '../..
 import { EditOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './user-management.scss'
-import { cargoTypeMap, waybillStatusMap } from '../../utility/constants';
+import { cargoTypeMap, roleMap, waybillStatusMap } from '../../utility/constants';
 import { createUser, deleteUser, getUserListMethod, updateUser, UserInfo } from '../../api/user';
+import { getAllClients } from '../../api/client';
 
 export const UserManagement = () => {
     const { Column } = Table
@@ -18,6 +19,9 @@ export const UserManagement = () => {
     const [pageSize, setPageSize] = useState(10)
     const [total, setTotal] = useState(0)
     const searchOption = useRef({})
+    const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
+    const clientMap = useRef(new Map<string, string>())
+    const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined)
     const filters: SearchFilter[] = [
         {
             type: 'input',
@@ -33,6 +37,14 @@ export const UserManagement = () => {
             label: '角色',
             placeholder: '请选择角色',
             options: [{label: '管理员', value: '1'}, {label: '司机', value: '2'}, {label:'客户', value: '3'}]
+        },
+        {
+            type: 'select',
+            multiple: true,
+            name: 'clientId',
+            label: '客户公司',
+            placeholder: '请选择客户公司',
+            options: clientList
         },
     ]
 
@@ -65,13 +77,17 @@ export const UserManagement = () => {
     }
 
     const onCreate = useCallback(() => {
+        updateClients()
         form.resetFields()
         setOpen(true)
     }, [])
 
     const onClickUserDetail = (record: UserInfo) => {
+        updateClients()
         form.setFieldsValue(record)
         form.setFieldValue('role', record.role.toString())
+        form.setFieldValue('clientId', record.clientId.toString())
+        setSelectedRole(record.role.toString())
         setOpen(true)
     }
 
@@ -99,6 +115,8 @@ export const UserManagement = () => {
     };
 
     const onFinish = (values: any) => {
+        values.clientName = clientMap.current.get(values.clientId)
+        values.clientId = Number(values.clientId)
         if(values.id) {
             updateUser(values).then((res) => {
                 message.success('更新用户成功');
@@ -117,9 +135,18 @@ export const UserManagement = () => {
             })
         }
     };
+    const updateClients = () => {
+        getAllClients().then(res => {
+            setClientList(res.data.map(it => ({label: it.clientName, value: it.id.toString()})))
+            res.data.forEach(it => clientMap.current.set(it.id.toString(), it.clientName))
+        }).catch(err => {
+            message.error('获取客户列表失败' + JSON.stringify(err))
+        })
+    }
 
     useEffect(() => {
         getUserList()
+        updateClients()
     },[])
 
     return (
@@ -142,7 +169,7 @@ export const UserManagement = () => {
                     <Column title="姓名" dataIndex="userName" key="userName" />
                     <Column title="角色" dataIndex="role" key="role" render={
                         (role: number) => {
-                            return <span>{role === 1 ? "管理员": "司机"}</span>
+                            return <span>{roleMap.get(role)}</span>
                         }
                     } />
                     <Column title="手机号" dataIndex="phone" key="phone" />
@@ -211,8 +238,15 @@ export const UserManagement = () => {
                         label="角色"
                         rules={[{ required: true, message: '请选择角色！' }]}
                     >
-                        <Select placeholder={'请选择角色'} options={filters[1].options} allowClear />
+                        <Select placeholder={'请选择角色'} options={filters[1].options} allowClear onChange={(v) => setSelectedRole(v)} />
                     </Form.Item>
+                    {selectedRole === '3' && <Form.Item
+                        name="clientId"
+                        label="客户公司"
+                        rules={[{ required: true, message: '请选择客户公司！' }]}
+                    >
+                        <Select placeholder={'请选择客户公司'} options={clientList} allowClear />
+                    </Form.Item>}
                     <Form.Item
                         name="phone"
                         label="手机号"

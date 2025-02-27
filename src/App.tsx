@@ -29,11 +29,13 @@ function App() {
       label: '用户管理',
       key: '/user-list',
       icon: <UserOutlined />,
+      disabled: user?.role !== 1
     },
     {
       label: '客户管理',
       key: '/client-list',
       icon: <ShopOutlined />,
+      disabled: user?.role !== 1
     },
   ]
 
@@ -70,7 +72,7 @@ function App() {
         </div>
       </header>
       <div className='side-bar'>
-        <Menu defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />
+        <Menu defaultSelectedKeys={['1']} onClick={onClick} selectedKeys={[current]} mode="inline" items={items.filter((it) => it ? ('disabled' in it ? !it.disabled : true) : false)} />
       </div>
       <div className='content'>
         {!location.pathname.includes('waybill-detail') ? (

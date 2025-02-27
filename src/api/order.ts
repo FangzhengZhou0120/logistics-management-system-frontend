@@ -56,3 +56,11 @@ export const deleteOrder = async (id: number) => {
 export const finishOrderMethod = async (id: number) => {
     return HttpClient.post<undefined>('/order/finish', {id})
 }
+
+export const getAllOrders = async () => {
+    return HttpClient.get<OrderInfo[]>('/order/all')
+}
+
+export const getOrderDetail = async (id: number) => {
+    return HttpClient.get<OrderInfo>('/order/detail?id=' + id)
+}
