@@ -94,12 +94,14 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
         passedPolyline.current.setPath(e.passedPath);
         map.current.setCenter(e.target.getPosition(), true)
       })
-      car.current.moveAlong(lineArr, {
-        // 每一段的时长
-        duration: 500,//可根据实际采集时间间隔设置
-        // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
-        autoRotation: false,
-      });
+      if(lineArr.length > 0) {
+        car.current.moveAlong(lineArr, {
+          // 每一段的时长
+          duration: 500,//可根据实际采集时间间隔设置
+          // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+          autoRotation: false,
+        });
+      }
     } else if (!isReplayMode && map.current) {
       const lineArr = trajectoryInfo.map((item) => {
         return wgs84togcj02(item.longitude, item.latitude);
