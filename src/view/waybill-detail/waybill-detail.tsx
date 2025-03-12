@@ -64,7 +64,7 @@ export const WaybillDetail = () => {
                 message.error(err.message);
             })
         } else if(!isReplayMode && waybill) {
-            getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, replayTime?.[0].unix() || 0, replayTime?.[1].unix() || 0).then(res => {
+            getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, replayTime?.[0].toDate().getTime() || 0, replayTime?.[1].toDate().getTime() || 0).then(res => {
                 setTrajectoryInfo(res.data);
                 setIsReplayMode(true);
             }).catch(err => {
