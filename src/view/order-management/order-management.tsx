@@ -34,18 +34,11 @@ export const OrderManagement = () => {
 
     const filters: SearchFilter[] = [
         {
-            type: 'select',
-            multiple: true,
+            type: 'input',
             name: 'cargoType',
             label: '货物类型',
-            placeholder: '请选择货物类型',
-            options: [
-                { value: '1', label: '食品' },
-                { value: '2', label: '玩具' },
-                { value: '3', label: '服装' },
-                { value: '4', label: '电子' },
-                { value: '99', label: '其他' },
-            ]
+            placeholder: '请输入货物类型',
+            options: []
         },
         {
             type: 'select',
@@ -76,7 +69,7 @@ export const OrderManagement = () => {
             setData(res.data.rows)
             setTotal(res.data.count)
         }).catch(err => {
-            message.error("获取订单列表失败"+err.message)
+            message.error("获取订单列表失败" + err.message)
         })
     }
 
@@ -143,7 +136,7 @@ export const OrderManagement = () => {
     };
 
     const onFinish = (values: any) => {
-        if(values.id) {
+        if (values.id) {
             values.id = parseInt(values.id)
             updateOrder(values).then((res) => {
                 message.success('更新订单成功');
@@ -184,6 +177,8 @@ export const OrderManagement = () => {
         form.setFieldsValue({
             endLocationCode: record.endLocationCode.split(','),
             clientId: record.clientId.toString(),
+            pickUpDate: record.pickUpDate ? dayjs(new Date(record.pickUpDate)) : undefined,
+            cargoType: record.cargoType,
         })
         setOpen(true)
     }
@@ -222,15 +217,22 @@ export const OrderManagement = () => {
                         }
                     } />
                     <Column title="目的地" dataIndex="endLocation" key="endLocation" />
-                    <Column title="货物类型" dataIndex="cargoType" key="cargoType" render={
-                        (type: number) => {
-                            return <span>{cargoTypeMap.get(type)}</span>
-                        }
-                    } />
-                    <Column title="货物数量" dataIndex="cargoCount" key="cargoCount" />
+                    <Column title="货物类型" dataIndex="cargoType" key="cargoType" />
+                    <Column title="货物数量" dataIndex="cargoCount" key="cargoCount" render={(v) => {
+                        return <span>{v}箱</span>
+                    }}/>
                     <Column title="客户公司" dataIndex="clientName" key="clientName" />
                     <Column title="发货人" dataIndex="sender" key="sender" />
                     <Column title="收货人" dataIndex="receiver" key="receiver" />
+                    <Column title="收货公司" dataIndex="receiveCompany" key="receiveCompany" />
+                    <Column
+                        title="提货时间"
+                        dataIndex="pickUpDate"
+                        key="pickUpDate"
+                        render={(time) => {
+                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
+                        }}
+                    />
                     <Column title="备注" dataIndex="remark" key="remark" />
                     <Column
                         title="操作"
@@ -247,7 +249,7 @@ export const OrderManagement = () => {
                                 >
                                     <a><StopOutlined />取消</a>
                                 </Popconfirm>}
-                                {record.status === 99 && <span style={{color: 'gray'}}><StopOutlined />取消</span>}
+                                {record.status === 99 && <span style={{ color: 'gray' }}><StopOutlined />取消</span>}
                             </Space>
                         )}
                     />
@@ -288,14 +290,14 @@ export const OrderManagement = () => {
                         label="货物类型"
                         rules={[{ required: true, message: '请选择货物类型!' }]}
                     >
-                        <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择货物类型'} options={filters[0].options} allowClear />
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
                         name="cargoCount"
                         label="货物数量"
                         rules={[{ required: true, message: '请输入货物数量!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} />
+                        <Input disabled={form.getFieldValue('id') !== undefined} suffix="箱"/>
                     </Form.Item>
                     <Form.Item
                         name="endLocationCode"
@@ -333,6 +335,13 @@ export const OrderManagement = () => {
                         <Input disabled={user?.role !== 1} />
                     </Form.Item>
                     <Form.Item
+                        name="receiveCompany"
+                        label="收货公司"
+                        rules={[{ required: true, message: '请输入收货公司!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
+                    </Form.Item>
+                    <Form.Item
                         name="receiver"
                         label="收货人"
                         rules={[{ required: true, message: '请输入收货人姓名!' }]}
@@ -347,6 +356,13 @@ export const OrderManagement = () => {
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item>
                     <Form.Item
+                        label="提货时间"
+                        name="pickUpDate"
+                        rules={[{ required: true, message: '请选择提货时间!' }]}
+                    >
+                        <DatePicker disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} showTime />
+                    </Form.Item>
+                    <Form.Item
                         name="remark"
                         label="备注"
                     // rules={[{ required: true, message: 'Please input the description' }]}
@@ -357,7 +373,7 @@ export const OrderManagement = () => {
                         {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) && <Button type="primary" htmlType="submit">
                             提交
                         </Button>}
-                        {form.getFieldValue('status') == 1 && <Button style={{marginLeft: '10px'}} type="primary" onClick={() => finishOrder(form.getFieldValue('id'))}> 已完成 </Button>} 
+                        {form.getFieldValue('status') == 1 && <Button style={{ marginLeft: '10px' }} type="primary" onClick={() => finishOrder(form.getFieldValue('id'))}> 已完成 </Button>}
                     </Form.Item>
                 </Form>
             </Modal>

@@ -27,7 +27,12 @@ export interface WaybillInfo {
     clientName: string,
     clientId: number,
     orderId: number,
-    key?: number
+    key?: number,
+    waybillNumber: string,
+    receiveCompany: string,
+    cargoCount: number,
+    cargoVolume: number,
+    pickUpPhone: string,
 }
 
 export interface WaybillCreateForm {
@@ -53,6 +58,11 @@ export interface WaybillCreateForm {
     clientId: number,
     orderId: number,
     clientName: string,
+    waybillNumber: string,
+    receiveCompany: string,
+    cargoCount: number,
+    cargoVolume: number,
+    pickUpPhone: string,
 }
 
 export interface CityInfo {

@@ -48,6 +48,7 @@ class HttpClient {
           const { status, data } = error.response;
           if (status === 401) {
             console.error('unable to authenticate');
+            window.location.href = '/login';
           } else if (status === 404) {
             console.error('Not Found');
           } else if (status === 500) {
@@ -109,5 +110,5 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient('https://guagualogistics.com/api')
+const httpClient = new HttpClient('http://localhost:7001/api')
 export default httpClient;

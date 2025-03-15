@@ -18,11 +18,17 @@ export const WaybillDetail = () => {
     const [trajectoryInfo, setTrajectoryInfo] = useState<TrajectoryInfo[]>([]);
     const [replayTime, setReplayTime] = useState<[dayjs.Dayjs, dayjs.Dayjs]>();
     const [isReplayMode, setIsReplayMode] = useState(false);
+    const disabledDate = useRef<any>(undefined)
 
     useEffect(() => {
         if (id) {
             getWaybillDetail(parseInt(id)).then(res => {
+                console.log(res.data)
                 setWaybill(res.data);
+                disabledDate.current = (current: dayjs.Dayjs) => {
+                    return current < dayjs(new Date(res.data.startTime)).add(-1, 'day') || current > dayjs(res.data.endTime ? new Date(res.data.endTime) : new Date()).add(1, 'day');
+                }
+                console.log(disabledDate.current)
             }).catch(err => {
                 message.error(err.message);
             })
@@ -76,17 +82,23 @@ export const WaybillDetail = () => {
         <>
             <div className='waybill-detail-tool-bar'>
                 <div className='replay'>
-                    <DatePicker.RangePicker value={replayTime} onChange={(dates) => dates?.[0] && dates?.[1] ? setReplayTime([dates[0], dates[1]]) : undefined} showTime />
+                    <DatePicker.RangePicker
+                    disabledDate={disabledDate.current}
+                     value={replayTime} onChange={(dates) => dates?.[0] && dates?.[1] ? setReplayTime([dates[0], dates[1]]) : undefined} showTime />
                     <Button style={{marginLeft: '10px'}} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" :"回放"}</Button>
                 </div>
-                <div className='waybill-detail-tool-bar-right'><Button type='primary' icon={<UploadOutlined />} onClick={() => setShowWaybillModal(true)}>运单详情</Button></div>
+                {/* <div className='waybill-detail-tool-bar-right'><Button type='primary' icon={<UploadOutlined />} onClick={() => setShowWaybillModal(true)}>运单详情</Button></div> */}
             </div>
-            {showWaybillModal && <div className='waybill-detail'>
-                <div className='waybill-detail-close'><CloseOutlined style={{cursor: 'pointer'}} onClick={() => setShowWaybillModal(false)}/></div>
+            {<div className='waybill-detail'>
+                {/* <div className='waybill-detail-close'><CloseOutlined style={{cursor: 'pointer'}} onClick={() => setShowWaybillModal(false)}/></div> */}
                 <div className='waybill-info'>
                     <div className='waybill-info-item'>
-                        <span>运单编号：</span>
+                        <span>运单ID：</span>
                         <span>{waybill?.id}</span>
+                    </div>
+                    <div className='waybill-info-item'>
+                        <span>运单号：</span>
+                        <span>{waybill?.waybillNumber}</span>
                     </div>
                     <div className='waybill-info-item'>
                         <span>关联订单：</span>
@@ -114,7 +126,7 @@ export const WaybillDetail = () => {
                     </div>
                     <div className='waybill-info-item'>
                         <span>货物类型：</span>
-                        <span>{cargoTypeMap.get( waybill?.cargoType || 99)}</span>
+                        <span>{waybill?.cargoType}</span>
                     </div>
                     <div className='waybill-info-item'>
                         <span>货物重量：</span>
