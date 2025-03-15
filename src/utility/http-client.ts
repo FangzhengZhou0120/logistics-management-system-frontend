@@ -110,5 +110,5 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient('http://localhost:7001/api')
+const httpClient = new HttpClient(process.env.BACKEND_URL || 'http://localhost:7001/api')
 export default httpClient;
