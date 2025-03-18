@@ -59,13 +59,13 @@ export const WaybillManagement = () => {
         //     placeholder: '请选择司机',
         //     options: driverList
         // },
-        {
-            type: 'cascader',
-            name: 'startLocationCode',
-            label: '始发地',
-            placeholder: '请选择始发地',
-            options: CityList
-        },
+        // {
+        //     type: 'cascader',
+        //     name: 'startLocationCode',
+        //     label: '始发地',
+        //     placeholder: '请选择始发地',
+        //     options: CityList
+        // },
         {
             type: 'cascader',
             name: 'endLocationCode',
@@ -103,7 +103,7 @@ export const WaybillManagement = () => {
     ]
 
     const getWaybillListMethod = () => {
-        searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
+        // searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
         searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         return getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
@@ -121,7 +121,7 @@ export const WaybillManagement = () => {
     }
 
     const onPageChange = (pageIndex: number, pageSize: number) => {
-        searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
+        // searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
         searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
@@ -200,9 +200,9 @@ export const WaybillManagement = () => {
             })
         } else {
             values.startTime = new Date(values.startTime).getTime()
-            values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
+            // values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
             values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
-            values.startLocationCode = values.startLocationCode.join(',')
+            // values.startLocationCode = values.startLocationCode.join(',')
             values.endLocationCode = values.endLocationCode.join(',')
             // values.driverName = driverMap.current.get(values.driverId)
             // values.fileList = values.fileList.map((it: any) => it.url).join(',')
@@ -229,7 +229,7 @@ export const WaybillManagement = () => {
             form.setFieldsValue({
                 startTime: dayjs(new Date(res.data.startTime)),
                 endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)) : null,
-                startLocationCode: res.data.startLocationCode.split(','),
+                // startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
                 carNumberColor: res.data.carNumberColor.toString(),
                 clientId: res.data.clientId.toString(),
@@ -341,7 +341,7 @@ export const WaybillManagement = () => {
                             return <span>{waybillStatusMap.get(status)}</span>
                         }
                     } />
-                    <Column title="始发地" dataIndex="startLocation" key="startLocation" />
+                    {/* <Column title="始发地" dataIndex="startLocation" key="startLocation" /> */}
                     <Column title="目的地" dataIndex="endLocation" key="endLocation" />
                     <Column title="下单人" dataIndex="sender" key="sender" />
                     <Column title="收货人" dataIndex="receiver" key="receiver" />
@@ -356,7 +356,15 @@ export const WaybillManagement = () => {
                         }}
                     />
                     <Column
-                        title="到达时间"
+                        title="预计到达时间"
+                        dataIndex="eta"
+                        key="eta"
+                        render={(time) => {
+                            return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
+                        }}
+                    />
+                    <Column
+                        title="实际到达时间"
                         dataIndex="endTime"
                         key="endTime"
                         render={(time) => {
@@ -446,13 +454,13 @@ export const WaybillManagement = () => {
                     >
                         <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择司机'} options={driverList} allowClear />
                     </Form.Item> */}
-                            <Form.Item
+                            {/* <Form.Item
                                 name="cargoType"
                                 label="货物类型"
                                 rules={[{ required: true, message: '请选择货物类型!' }]}
                             >
                                 <Input  />
-                            </Form.Item>
+                            </Form.Item> */}
                             <Form.Item
                                 name="cargoWeight"
                                 label="货物重量"
@@ -474,7 +482,7 @@ export const WaybillManagement = () => {
                             >
                                 <Input suffix="方" />
                             </Form.Item>
-                            <Form.Item
+                            {/* <Form.Item
                                 name="startLocationCode"
                                 label="始发地"
                                 rules={[{ required: true, message: '请选择始发地!' }]}
@@ -487,10 +495,8 @@ export const WaybillManagement = () => {
                                 rules={[{ required: true, message: '请输入始发地详细地址!' }]}
                             >
                                 <Input  />
-                            </Form.Item>
-                        </div>
-
-                        <div style={{ flex: '1 1 50%', paddingLeft: '12px' }}>
+                            </Form.Item> */}
+                        
                             
                             <Form.Item
                                 name="endLocationCode"
@@ -507,10 +513,21 @@ export const WaybillManagement = () => {
                                 <Input  />
                             </Form.Item>
 
+                            </div>
+
+                        <div style={{ flex: '1 1 50%', paddingLeft: '12px' }}>
+
                             <Form.Item
                                 label="发货时间"
                                 name="startTime"
                                 rules={[{ required: true, message: '请选择出发时间!' }]}
+                            >
+                                <DatePicker  showTime />
+                            </Form.Item>
+                            <Form.Item
+                                label="预计到达时间"
+                                name="eta"
+                                rules={[{ required: true, message: '请选择预计到达时间!' }]}
                             >
                                 <DatePicker  showTime />
                             </Form.Item>

@@ -33,6 +33,7 @@ export interface WaybillInfo {
     cargoCount: number,
     cargoVolume: number,
     pickUpPhone: string,
+    eta: number,
 }
 
 export interface WaybillCreateForm {
@@ -63,6 +64,7 @@ export interface WaybillCreateForm {
     cargoCount: number,
     cargoVolume: number,
     pickUpPhone: string,
+    eta: number,
 }
 
 export interface CityInfo {

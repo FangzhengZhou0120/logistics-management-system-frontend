@@ -116,10 +116,10 @@ export const WaybillDetail = () => {
                         <span>司机姓名：</span>
                         <span>{waybill?.driverName}</span>
                     </div> */}
-                    <div className='waybill-info-item'>
+                    {/* <div className='waybill-info-item'>
                         <span>起点：</span>
                         <span>{`${waybill?.startLocation} ${waybill?.startAddress}`}</span>
-                    </div>
+                    </div> */}
                     <div className='waybill-info-item'>
                         <span>终点：</span>
                         <span>{`${waybill?.endLocation} ${waybill?.endAddress}`}</span>
@@ -128,6 +128,18 @@ export const WaybillDetail = () => {
                         <span>货物类型：</span>
                         <span>{waybill?.cargoType}</span>
                     </div> */}
+                    <div className='waybill-info-item'>
+                        <span>出发时间：</span>
+                        <span>{waybill?.startTime ? dayjs(new Date(waybill?.startTime)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
+                    </div>
+                    <div className='waybill-info-item'>
+                        <span>预计到达时间：</span>
+                        <span>{waybill?.eta ? dayjs(new Date(waybill?.eta)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
+                    </div>
+                    <div className='waybill-info-item'>
+                        <span>实际到达时间：</span>
+                        <span>{waybill?.endTime ? dayjs(new Date(waybill?.endTime)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
+                    </div>
                     <div className='waybill-info-item'>
                         <span>货物重量：</span>
                         <span>{waybill?.cargoWeight} kg</span>
