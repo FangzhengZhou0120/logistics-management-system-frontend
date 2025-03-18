@@ -53,14 +53,28 @@ export const OrderManagement = () => {
                 { value: '99', label: '已取消' },
             ]
         },
+        // {
+        //     type: 'select',
+        //     multiple: true,
+        //     name: 'clientId',
+        //     label: '客户公司',
+        //     placeholder: '请选择客户公司',
+        //     options: clientList
+        // },
         {
-            type: 'select',
-            multiple: true,
-            name: 'clientId',
-            label: '客户公司',
-            placeholder: '请选择客户公司',
-            options: clientList
+            type: 'input',
+            name: 'receiver',
+            label: '收货人',
+            placeholder: '请输入收货人',
+            options: []
         },
+        {
+            type: 'dateRange',
+            name: 'pickUpDate',
+            label: '提货日期',
+            placeholder: '请选择提货日期',
+            options: []
+        }
     ]
 
     const getOrderListMethod = () => {

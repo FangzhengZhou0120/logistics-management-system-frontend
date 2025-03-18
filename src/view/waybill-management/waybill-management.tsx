@@ -232,6 +232,7 @@ export const WaybillManagement = () => {
                 startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
                 carNumberColor: res.data.carNumberColor.toString(),
+                clientId: res.data.clientId.toString(),
                 // fileList: res.data.fileList.split(",").map((it: string, index: number) => {
                 //     return {
                 //         uid: index,
@@ -415,28 +416,28 @@ export const WaybillManagement = () => {
                                 label="关联订单号"
                                 rules={[{ required: true, message: '请选择关联订单号!' }]}
                             >
-                                <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择关联订单号'} options={orderList.current} allowClear onChange={value => onSelectOrder(value)} />
+                                <Select placeholder={'请选择关联订单号'} options={orderList.current} allowClear onChange={value => onSelectOrder(value)} />
                             </Form.Item>
                             <Form.Item
                                 name="waybillNumber"
                                 label="运单号"
                                 rules={[{ required: true, message: '请输入运单号!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="carNumber"
                                 label="车牌号"
                                 rules={[{ required: true, message: '请输入车牌号!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="carNumberColor"
                                 label="车牌颜色"
                                 rules={[{ required: true, message: '请选择车牌颜色!' }]}
                             >
-                                <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择车牌颜色'} options={carNumberColorList.current} allowClear />
+                                <Select placeholder={'请选择车牌颜色'} options={carNumberColorList.current} allowClear />
                             </Form.Item>
                             {/* <Form.Item
                         name="driverId"
@@ -450,42 +451,42 @@ export const WaybillManagement = () => {
                                 label="货物类型"
                                 rules={[{ required: true, message: '请选择货物类型!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="cargoWeight"
                                 label="货物重量"
                                 rules={[{ required: true, message: '请输入货物重量!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} suffix="千克" />
+                                <Input  suffix="千克" />
                             </Form.Item>
                             <Form.Item
                                 name="cargoCount"
                                 label="货物数量"
                                 rules={[{ required: true, message: '请输入货物数量!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} suffix="箱" />
+                                <Input suffix="箱" />
                             </Form.Item>
                             <Form.Item
                                 name="cargoVolume"
                                 label="货物体积"
                                 rules={[{ required: true, message: '请输入货物体积!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} suffix="方" />
+                                <Input suffix="方" />
                             </Form.Item>
                             <Form.Item
                                 name="startLocationCode"
                                 label="始发地"
                                 rules={[{ required: true, message: '请选择始发地!' }]}
                             >
-                                <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择始发地'} options={CityList} allowClear />
+                                <Cascader  placeholder={'请选择始发地'} options={CityList} allowClear />
                             </Form.Item>
                             <Form.Item
                                 name="startAddress"
                                 label="始发地详细地址"
                                 rules={[{ required: true, message: '请输入始发地详细地址!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                         </div>
 
@@ -496,14 +497,14 @@ export const WaybillManagement = () => {
                                 label="目的地"
                                 rules={[{ required: true, message: '请选择目的地!' }]}
                             >
-                                <Cascader disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择目的地'} options={CityList} allowClear />
+                                <Cascader  placeholder={'请选择目的地'} options={CityList} allowClear />
                             </Form.Item>
                             <Form.Item
                                 name="endAddress"
                                 label="目的地详细地址"
                                 rules={[{ required: true, message: '请输入目的地详细地址!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
 
                             <Form.Item
@@ -511,7 +512,7 @@ export const WaybillManagement = () => {
                                 name="startTime"
                                 rules={[{ required: true, message: '请选择出发时间!' }]}
                             >
-                                <DatePicker disabled={form.getFieldValue('id') !== undefined} showTime />
+                                <DatePicker  showTime />
                             </Form.Item>
                             {
                                 form.getFieldValue('id') && <Form.Item
@@ -519,7 +520,7 @@ export const WaybillManagement = () => {
                                     name="endTime"
                                     rules={[{ required: true, message: '请选择到达时间!' }]}
                                 >
-                                    <DatePicker disabled={form.getFieldValue('status') != 1} showTime />
+                                    <DatePicker  showTime />
                                 </Form.Item>
                             }
                             <Form.Item
@@ -527,49 +528,49 @@ export const WaybillManagement = () => {
                                 label="客户公司名称"
                                 rules={[{ required: true, message: '请选择客户公司名称!' }]}
                             >
-                                <Select disabled={form.getFieldValue('id') !== undefined} placeholder={'请选择客户公司名称'} options={clientList} allowClear />
+                                <Select  placeholder={'请选择客户公司名称'} options={clientList} allowClear />
                             </Form.Item>
                             <Form.Item
                                 name="sender"
                                 label="下单人"
                                 rules={[{ required: true, message: '请输入下单人姓名!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="senderPhone"
                                 label="下单人手机号"
                                 rules={[{ required: true, message: '请输入下单人手机号!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="receiveCompany"
                                 label="收货公司"
                                 rules={[{ required: true, message: '请输入收货公司!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="receiver"
                                 label="收货人"
                                 rules={[{ required: true, message: '请输入收货人姓名!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="receiverPhone"
                                 label="收货人手机号"
                                 rules={[{ required: true, message: '请输入收货人手机号!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="pickUpPhone"
                                 label="提货手机号"
                                 rules={[{ required: true, message: '请输入提货手机号!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} />
+                                <Input  />
                             </Form.Item>
                             <Form.Item
                                 name="remark"
