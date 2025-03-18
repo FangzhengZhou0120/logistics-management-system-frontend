@@ -33,13 +33,13 @@ export const OrderManagement = () => {
     const clientMap = useRef(new Map<string, string>())
 
     const filters: SearchFilter[] = [
-        {
-            type: 'input',
-            name: 'cargoType',
-            label: '货物类型',
-            placeholder: '请输入货物类型',
-            options: []
-        },
+        // {
+        //     type: 'input',
+        //     name: 'cargoType',
+        //     label: '货物类型',
+        //     placeholder: '请输入货物类型',
+        //     options: []
+        // },
         {
             type: 'select',
             multiple: true,
@@ -217,12 +217,18 @@ export const OrderManagement = () => {
                         }
                     } />
                     <Column title="目的地" dataIndex="endLocation" key="endLocation" />
-                    <Column title="货物类型" dataIndex="cargoType" key="cargoType" />
+                    {/* <Column title="货物类型" dataIndex="cargoType" key="cargoType" /> */}
                     <Column title="货物数量" dataIndex="cargoCount" key="cargoCount" render={(v) => {
                         return <span>{v}箱</span>
                     }}/>
+                    <Column title="货物重量" dataIndex="cargoWeight" key="cargoWeight" render={(v) => {
+                        return <span>{v}千克</span>
+                    }}/>
+                    <Column title="货物体积" dataIndex="cargoVolume" key="cargoVolume" render={(v) => {
+                        return <span>{v}方</span>
+                    }}/>
                     <Column title="客户公司" dataIndex="clientName" key="clientName" />
-                    <Column title="发货人" dataIndex="sender" key="sender" />
+                    <Column title="下单人" dataIndex="sender" key="sender" />
                     <Column title="收货人" dataIndex="receiver" key="receiver" />
                     <Column title="收货公司" dataIndex="receiveCompany" key="receiveCompany" />
                     <Column
@@ -285,19 +291,33 @@ export const OrderManagement = () => {
                             <Input disabled />
                         </Form.Item>
                     }
-                    <Form.Item
+                    {/* <Form.Item
                         name="cargoType"
                         label="货物类型"
                         rules={[{ required: true, message: '请选择货物类型!' }]}
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item
                         name="cargoCount"
                         label="货物数量"
                         rules={[{ required: true, message: '请输入货物数量!' }]}
                     >
-                        <Input disabled={form.getFieldValue('id') !== undefined} suffix="箱"/>
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="箱"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="cargoWeight"
+                        label="货物重量"
+                        rules={[{ required: true, message: '请输入货物重量!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="千克"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="cargoVolume"
+                        label="货物体积"
+                        rules={[{ required: true, message: '请输入货物体积!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="方"/>
                     </Form.Item>
                     <Form.Item
                         name="endLocationCode"

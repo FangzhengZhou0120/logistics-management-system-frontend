@@ -73,13 +73,13 @@ export const WaybillManagement = () => {
             placeholder: '请选择目的地',
             options: CityList
         },
-        {
-            type: 'input',
-            name: 'cargoType',
-            label: '货物类型',
-            placeholder: '请输入货物类型',
-            options: []
-        },
+        // {
+        //     type: 'input',
+        //     name: 'cargoType',
+        //     label: '货物类型',
+        //     placeholder: '请输入货物类型',
+        //     options: []
+        // },
         {
             type: 'select',
             multiple: true,
@@ -341,9 +341,10 @@ export const WaybillManagement = () => {
                     } />
                     <Column title="始发地" dataIndex="startLocation" key="startLocation" />
                     <Column title="目的地" dataIndex="endLocation" key="endLocation" />
+                    <Column title="下单人" dataIndex="sender" key="sender" />
                     <Column title="收货人" dataIndex="receiver" key="receiver" />
                     <Column title="提货手机号" dataIndex="pickUpPhone" key="pickUpPhone" />
-                    <Column title="货物类型" dataIndex="cargoType" key="cargoType" />
+                    {/* <Column title="货物类型" dataIndex="cargoType" key="cargoType" /> */}
                     <Column
                         title="出发时间"
                         dataIndex="startTime"
@@ -469,7 +470,7 @@ export const WaybillManagement = () => {
                                 label="货物体积"
                                 rules={[{ required: true, message: '请输入货物体积!' }]}
                             >
-                                <Input disabled={form.getFieldValue('id') !== undefined} suffix="立方米" />
+                                <Input disabled={form.getFieldValue('id') !== undefined} suffix="方" />
                             </Form.Item>
                             <Form.Item
                                 name="startLocationCode"

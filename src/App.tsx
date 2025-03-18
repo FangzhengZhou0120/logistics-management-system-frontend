@@ -62,7 +62,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          <h3 style={{color:'black'}}>呱呱物流管理后台</h3>
+          <h3 style={{color:'black'}}>昊运联物流管理后台</h3>
         </div>
         <div className='user-info'>
         <Avatar style={{ backgroundColor: '#f56a00', verticalAlign: 'middle', marginRight: '5px' }} size="large" gap={2}>
@@ -82,7 +82,7 @@ function App() {
         ) : outlet}
       </div>
       <footer className="App-footer">
-        <a href="https://beian.miit.gov.cn/" target="_blank">© {new Date().getFullYear()} 呱呱物流 | 备案号：粤ICP备2025376846号-1</a>
+        <a href="https://beian.miit.gov.cn/" target="_blank">© {new Date().getFullYear()} 昊运联物流 | 备案号：粤ICP备2025376846号-1</a>
       </footer>
     </div>
   )

@@ -20,7 +20,9 @@ export interface OrderInfo {
     clientName: string,
     receiveCompany: string,
     pickUpDate: number,
-    key?: number
+    key?: number,
+    cargoVolume: number,
+    cargoWeight: number,
 }
 
 export interface OrderCreateForm {
@@ -39,6 +41,8 @@ export interface OrderCreateForm {
     clientName: string,
     receiveCompany: string,
     pickUpDate: number,
+    cargoVolume: number,
+    cargoWeight: number,
 }
 
 export const getOrderList = async (pageIndex: number, pageSize: number, options: any) => {
