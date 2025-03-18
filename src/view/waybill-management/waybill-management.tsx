@@ -231,6 +231,7 @@ export const WaybillManagement = () => {
                 endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)) : null,
                 startLocationCode: res.data.startLocationCode.split(','),
                 endLocationCode: res.data.endLocationCode.split(','),
+                carNumberColor: res.data.carNumberColor.toString(),
                 // fileList: res.data.fileList.split(",").map((it: string, index: number) => {
                 //     return {
                 //         uid: index,
