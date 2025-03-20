@@ -75,6 +75,7 @@ export const WaybillDetail = () => {
             return;
         }
         if (isReplayMode && waybill) {
+            setIsLoading(true);
             getCarPosition(waybill.carNumber + '_' + waybill.carNumberColor, waybill.startLocationCode.split(',')[1], waybill.endLocationCode.split(',')[1]).then(res => {
                 setPositionInfo(res.data);
             }).catch(err => {
@@ -83,14 +84,17 @@ export const WaybillDetail = () => {
 
             getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, waybill.startTime, waybill.endTime).then(res => {
                 setTrajectoryInfo(res.data);
+                setIsLoading(false);
                 setIsReplayMode(false);
             }).catch(err => {
                 message.error(err.message);
             })
         } else if (!isReplayMode && waybill) {
+            setIsLoading(true);
             getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, replayTime?.[0].toDate().getTime() || 0, replayTime?.[1].toDate().getTime() || 0).then(res => {
                 setTrajectoryInfo(res.data);
                 setIsReplayMode(true);
+                setIsLoading(false);
             }).catch(err => {
                 message.error(err.message);
             })
