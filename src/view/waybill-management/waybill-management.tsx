@@ -164,9 +164,9 @@ export const WaybillManagement = () => {
     const confirmAbort = (id: number) => {
         cancelWaybill(id).then(_ => {
             getWaybillListMethod()
-            message.success('删除运单成功')
+            message.success('取消运单成功')
         }).catch(err => {
-            message.error('删除运单失败' + JSON.stringify(err))
+            message.error('取消运单失败' + JSON.stringify(err))
         })
 
     };

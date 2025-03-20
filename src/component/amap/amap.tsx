@@ -12,13 +12,14 @@ declare global {
 }
 
 interface AMapComponentProps {
+  replaySpeed?: number;
   waybill: WaybillInfo;
   positionInfo: CarPositionInfo;
   trajectoryInfo: TrajectoryInfo[];
   isReplayMode?: boolean;
 }
 
-export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayMode }: AMapComponentProps) => {
+export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayMode, replaySpeed }: AMapComponentProps) => {
   let map = useRef<any>(null);
   let car = useRef<any>(null);
   let carPath = useRef<any>(null)
@@ -97,7 +98,7 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
       if(lineArr.length > 0) {
         car.current.moveAlong(lineArr, {
           // 每一段的时长
-          duration: 50,//可根据实际采集时间间隔设置
+          duration: replaySpeed,//可根据实际采集时间间隔设置
           // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
           autoRotation: false,
         });
@@ -111,7 +112,7 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
       car.current.setPosition(wgs84togcj02(positionInfo.lon, positionInfo.lat))
       map.current.remove(passedPolyline.current)
     }
-  }, [isReplayMode, trajectoryInfo, positionInfo]);
+  }, [isReplayMode, trajectoryInfo, positionInfo, replaySpeed]);
 
   return (
     <div

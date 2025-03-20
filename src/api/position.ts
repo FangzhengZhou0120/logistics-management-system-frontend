@@ -3,21 +3,21 @@ import HttpClient from "../utility/http-client";
 export interface CarPositionInfo {
     lat: number,
     lon: number,
-    adr: string,
-    utc: string,
-    spd: string,
-    drc: string,
-    province: string,
-    city: string,
-    country: string,
-    mil: string,
-    vno: string,
-    status: string,
-    offlineState: boolean,
-    offlineTime: string,
-    runDistance: string,
-    remainDistance: string,
-    estimateArriveTime: string
+    adr?: string,
+    utc?: string,
+    spd?: string,
+    drc?: string,
+    province?: string,
+    city?: string,
+    country?: string,
+    mil?: string,
+    vno?: string,
+    status?: string,
+    offlineState?: boolean,
+    offlineTime?: string,
+    runDistance?: string,
+    remainDistance?: string,
+    estimateArriveTime?: string
 }
 
 export interface TrajectoryInfo {
