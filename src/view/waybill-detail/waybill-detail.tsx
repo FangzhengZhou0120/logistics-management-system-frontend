@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Radio, Select, Space, Table, Upload, UploadProps } from 'antd';
+import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Radio, Select, Space, Spin, Table, Upload, UploadProps } from 'antd';
 import { cancelWaybill, createWaybill, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
 import { CloseOutlined, PlayCircleOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -19,6 +19,7 @@ export const WaybillDetail = () => {
     const [replayTime, setReplayTime] = useState<[dayjs.Dayjs, dayjs.Dayjs]>();
     const [isReplayMode, setIsReplayMode] = useState(false);
     const [replaySpeed, setReplaySpeed] = useState(100);
+    const [isLoading, setIsLoading] = useState(false);
     const disabledDate = useRef<any>(undefined)
 
     useEffect(() => {
@@ -38,9 +39,11 @@ export const WaybillDetail = () => {
 
     useEffect(() => {
         if (waybill) {
-            if(waybill.status === 2 || waybill.status === 99) {
+            setIsLoading(true);
+            if (waybill.status === 2 || waybill.status === 99) {
                 getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, waybill.startTime, waybill.endTime).then(res => {
                     setTrajectoryInfo(res.data);
+                    setIsLoading(false);
                     setPositionInfo({
                         lon: res.data[res.data.length - 1].longitude,
                         lat: res.data[res.data.length - 1].latitude,
@@ -56,11 +59,12 @@ export const WaybillDetail = () => {
                 })
                 getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, waybill.startTime, waybill.endTime).then(res => {
                     setTrajectoryInfo(res.data);
+                    setIsLoading(false);
                 }).catch(err => {
                     message.error(err.message);
                 })
             }
-            
+
 
         }
     }, [waybill])
@@ -102,7 +106,7 @@ export const WaybillDetail = () => {
                     <Button style={{ marginLeft: '10px' }} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" : "回放"}</Button>
                 </div>
                 {isReplayMode && <div>
-                    <span style={{color: 'black'}}>回放速度：</span>
+                    <span style={{ color: 'black' }}>回放速度：</span>
                     <Radio.Group
                         name="radiogroup"
                         value={replaySpeed}
@@ -194,7 +198,9 @@ export const WaybillDetail = () => {
                     </div>
                 </div>
             </div>}
-            {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo} isReplayMode={isReplayMode} replaySpeed={replaySpeed} />}
+            <Spin spinning={isLoading}>
+                {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo} isReplayMode={isReplayMode} replaySpeed={replaySpeed} />}
+            </Spin>
         </>
     )
 }
