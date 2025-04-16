@@ -23,6 +23,8 @@ export interface OrderInfo {
     key?: number,
     cargoVolume: number,
     cargoWeight: number,
+    carModel: string,
+    carWait: boolean,
     extra?: string,
 }
 
@@ -44,7 +46,9 @@ export interface OrderCreateForm {
     pickUpDate: number,
     cargoVolume: number,
     cargoWeight: number,
+    carModel: string,
     extra?: string,
+    carWait: boolean,
 }
 
 export const getOrderList = async (pageIndex: number, pageSize: number, options: any) => {

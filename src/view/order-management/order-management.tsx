@@ -152,11 +152,20 @@ export const OrderManagement = () => {
     };
 
     const onFinish = (values: any) => {
+        //values.startTime = new Date(values.startTime).getTime()
+        //values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
+        values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
+        //values.startLocationCode = values.startLocationCode.join(',')
+        values.endLocationCode = values.endLocationCode.join(',')
+        values.clientId = Number(values.clientId)
+        values.clientName = clientMap.current.get(values.clientId.toString())
+        // values.driverName = driverMap.current.get(values.driverId)
+        // values.fileList = values.fileList.map((it: any) => it.url).join(',')
+        if(customItems.length > 0) {
+            values.extra = JSON.stringify(customItems)
+        }
         if (values.id) {
             values.id = parseInt(values.id)
-            if(customItems.length > 0) {
-                values.extra = JSON.stringify(customItems)
-            }
             updateOrder(values).then((res) => {
                 message.success('更新订单成功');
                 setOpen(false)
@@ -168,15 +177,6 @@ export const OrderManagement = () => {
             })
             return
         }
-        //values.startTime = new Date(values.startTime).getTime()
-        //values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
-        values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
-        //values.startLocationCode = values.startLocationCode.join(',')
-        values.endLocationCode = values.endLocationCode.join(',')
-        values.clientId = Number(values.clientId)
-        values.clientName = clientMap.current.get(values.clientId.toString())
-        // values.driverName = driverMap.current.get(values.driverId)
-        // values.fileList = values.fileList.map((it: any) => it.url).join(',')
         setConfirmLoading(true)
         createOrder(values).then((res) => {
             message.success('创建订单成功');
@@ -264,15 +264,14 @@ export const OrderManagement = () => {
                     } />
                     <Column title="目的地" dataIndex="endLocation" key="endLocation" />
                     {/* <Column title="货物类型" dataIndex="cargoType" key="cargoType" /> */}
-                    <Column title="货物数量" dataIndex="cargoCount" key="cargoCount" render={(v) => {
-                        return <span>{v}箱</span>
+                    <Column title="车型" dataIndex="carModel" key="carModel" />
+                    <Column title="是否压车" dataIndex="carWait" key="carWait" render={(v) => {
+                        return <span>{v ? "是" : "否"}</span>
                     }}/>
                     <Column title="货物重量" dataIndex="cargoWeight" key="cargoWeight" render={(v) => {
                         return <span>{v}千克</span>
                     }}/>
-                    <Column title="货物体积" dataIndex="cargoVolume" key="cargoVolume" render={(v) => {
-                        return <span>{v}方</span>
-                    }}/>
+                    
                     <Column title="客户公司" dataIndex="clientName" key="clientName" />
                     <Column title="下单人" dataIndex="sender" key="sender" />
                     <Column title="收货人" dataIndex="receiver" key="receiver" />
@@ -357,6 +356,23 @@ export const OrderManagement = () => {
                         rules={[{ required: true, message: '请输入货物重量!' }]}
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="千克"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="carModel"
+                        label="车型"
+                        rules={[{ required: true, message: '请输入车型!' }]}
+                    >
+                        <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
+                    </Form.Item>
+                    <Form.Item
+                        name="carWait"
+                        label="是否压车"
+                        rules={[{ required: true, message: '请选择是否压车!' }]}
+                    >
+                        <Select disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} placeholder={'请选择是否压车'} options={[
+                            { label: '是', value: true },
+                            { label: '否', value: false },
+                        ]} allowClear />
                     </Form.Item>
                     {/* <Form.Item
                         name="cargoVolume"

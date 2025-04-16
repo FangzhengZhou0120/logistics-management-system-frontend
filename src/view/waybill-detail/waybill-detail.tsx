@@ -1,13 +1,14 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Radio, Select, Space, Spin, Table, Upload, UploadProps } from 'antd';
 import { cancelWaybill, createWaybill, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
-import { CloseOutlined, PlayCircleOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
+import { CameraOutlined, CloseOutlined, PlayCircleOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-detail.scss'
 import { cargoTypeMap, waybillStatusMap } from '../../utility/constants';
 import { AMapComponent } from '../../component/amap/amap';
 import { useParams } from 'react-router-dom';
 import { CarPositionInfo, getCarPosition, getTrajectory, TrajectoryInfo } from '../../api/position';
+import html2canvas from 'html2canvas';
 
 export const WaybillDetail = () => {
     const params = useParams();
@@ -21,6 +22,7 @@ export const WaybillDetail = () => {
     const [replaySpeed, setReplaySpeed] = useState(100);
     const [isLoading, setIsLoading] = useState(false);
     const disabledDate = useRef<any>(undefined)
+    const mapContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (id) {
@@ -100,6 +102,39 @@ export const WaybillDetail = () => {
             })
         }
     }
+
+    const handleTakeScreenshot = async () => {
+        try {
+            setIsLoading(true);
+            // Find the map container - using the container that wraps the AMapComponent
+            const mapElement = mapContainerRef.current;
+
+            if (!mapElement) {
+                message.error('Map element not found');
+                setIsLoading(false);
+                return;
+            }
+
+            const canvas = await html2canvas(mapElement, {
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+            });
+
+            // Create a download link
+            const link = document.createElement('a');
+            link.download = `map-${waybill?.waybillNumber || 'screenshot'}-${dayjs().format('YYYYMMDD-HHmmss')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            message.success('轨迹截图已保存');
+        } catch (error) {
+            console.error('Screenshot error:', error);
+            message.error('截图失败');
+        } finally {
+            setIsLoading(false);
+        }
+    }
     return (
         <>
             <div className='waybill-detail-tool-bar'>
@@ -108,6 +143,14 @@ export const WaybillDetail = () => {
                         disabledDate={disabledDate.current}
                         value={replayTime} onChange={(dates) => dates?.[0] && dates?.[1] ? setReplayTime([dates[0], dates[1]]) : undefined} showTime />
                     <Button style={{ marginLeft: '10px' }} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" : "回放"}</Button>
+                    <Button
+                        style={{ marginLeft: '10px' }}
+                        type='default'
+                        icon={<CameraOutlined />}
+                        onClick={handleTakeScreenshot}
+                        disabled={isLoading}>
+                        保存轨迹
+                    </Button>
                 </div>
                 {isReplayMode && <div>
                     <span style={{ color: 'black' }}>回放速度：</span>
@@ -203,7 +246,9 @@ export const WaybillDetail = () => {
                 </div>
             </div>}
             <Spin spinning={isLoading}>
-                {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo} isReplayMode={isReplayMode} replaySpeed={replaySpeed} />}
+                <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }}>
+                    {waybill && positionInfo && trajectoryInfo && <AMapComponent waybill={waybill} positionInfo={positionInfo} trajectoryInfo={trajectoryInfo} isReplayMode={isReplayMode} replaySpeed={replaySpeed} />}
+                </div>
             </Spin>
         </>
     )

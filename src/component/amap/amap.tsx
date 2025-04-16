@@ -41,7 +41,10 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
           // 设置地图容器id
           viewMode: "2D", // 是否为3D地图模式
           zoom: 11, // 初始化地图级别
-          center: carPosition // 初始化地图中心点位置
+          center: carPosition, // 初始化地图中心点位置
+          WebGLParams: {
+            preserveDrawingBuffer: true
+          }
         });
         const content = `
           <div class="custom-content-marker">
@@ -95,7 +98,7 @@ export const AMapComponent = ({ waybill, positionInfo, trajectoryInfo, isReplayM
         passedPolyline.current.setPath(e.passedPath);
         map.current.setCenter(e.target.getPosition(), true)
       })
-      if(lineArr.length > 0) {
+      if (lineArr.length > 0) {
         car.current.moveAlong(lineArr, {
           // 每一段的时长
           duration: replaySpeed,//可根据实际采集时间间隔设置

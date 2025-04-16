@@ -273,6 +273,7 @@ export const WaybillManagement = () => {
                 endAddress: res.data.endAddress,
                 cargoType: res.data.cargoType,
                 receiveCompany: res.data.receiveCompany,
+                carModel: res.data.carModel,
             })
         }).catch(err => {
             message.error(err.message)
@@ -431,14 +432,14 @@ export const WaybillManagement = () => {
                                 label="运单号"
                                 rules={[{ required: true, message: '请输入运单号!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="carNumber"
                                 label="车牌号"
                                 rules={[{ required: true, message: '请输入车牌号!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="carNumberColor"
@@ -446,6 +447,13 @@ export const WaybillManagement = () => {
                                 rules={[{ required: true, message: '请选择车牌颜色!' }]}
                             >
                                 <Select placeholder={'请选择车牌颜色'} options={carNumberColorList.current} allowClear />
+                            </Form.Item>
+                            <Form.Item
+                                name="carModel"
+                                label="车型"
+                                rules={[{ required: true, message: '请输入车型!' }]}
+                            >
+                                <Input />
                             </Form.Item>
                             {/* <Form.Item
                         name="driverId"
@@ -466,7 +474,7 @@ export const WaybillManagement = () => {
                                 label="货物重量"
                                 rules={[{ required: true, message: '请输入货物重量!' }]}
                             >
-                                <Input  suffix="千克" />
+                                <Input suffix="千克" />
                             </Form.Item>
                             <Form.Item
                                 name="cargoCount"
@@ -496,24 +504,24 @@ export const WaybillManagement = () => {
                             >
                                 <Input  />
                             </Form.Item> */}
-                        
-                            
+
+
                             <Form.Item
                                 name="endLocationCode"
                                 label="目的地"
                                 rules={[{ required: true, message: '请选择目的地!' }]}
                             >
-                                <Cascader  placeholder={'请选择目的地'} options={CityList} allowClear />
+                                <Cascader placeholder={'请选择目的地'} options={CityList} allowClear />
                             </Form.Item>
                             <Form.Item
                                 name="endAddress"
                                 label="目的地详细地址"
                                 rules={[{ required: true, message: '请输入目的地详细地址!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
 
-                            </div>
+                        </div>
 
                         <div style={{ flex: '1 1 50%', paddingLeft: '12px' }}>
 
@@ -522,14 +530,14 @@ export const WaybillManagement = () => {
                                 name="startTime"
                                 rules={[{ required: true, message: '请选择出发时间!' }]}
                             >
-                                <DatePicker  showTime />
+                                <DatePicker showTime />
                             </Form.Item>
                             <Form.Item
                                 label="预计到达时间"
                                 name="eta"
                                 rules={[{ required: true, message: '请选择预计到达时间!' }]}
                             >
-                                <DatePicker  showTime />
+                                <DatePicker showTime />
                             </Form.Item>
                             {
                                 form.getFieldValue('id') && <Form.Item
@@ -537,7 +545,7 @@ export const WaybillManagement = () => {
                                     name="endTime"
                                     rules={[{ required: true, message: '请选择到达时间!' }]}
                                 >
-                                    <DatePicker  showTime />
+                                    <DatePicker showTime />
                                 </Form.Item>
                             }
                             <Form.Item
@@ -545,49 +553,49 @@ export const WaybillManagement = () => {
                                 label="客户公司名称"
                                 rules={[{ required: true, message: '请选择客户公司名称!' }]}
                             >
-                                <Select  placeholder={'请选择客户公司名称'} options={clientList} allowClear />
+                                <Select placeholder={'请选择客户公司名称'} options={clientList} allowClear />
                             </Form.Item>
                             <Form.Item
                                 name="sender"
                                 label="下单人"
                                 rules={[{ required: true, message: '请输入下单人姓名!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="senderPhone"
                                 label="下单人手机号"
                                 rules={[{ required: true, message: '请输入下单人手机号!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="receiveCompany"
                                 label="收货公司"
                                 rules={[{ required: true, message: '请输入收货公司!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="receiver"
                                 label="收货人"
                                 rules={[{ required: true, message: '请输入收货人姓名!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="receiverPhone"
                                 label="收货人手机号"
                                 rules={[{ required: true, message: '请输入收货人手机号!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="pickUpPhone"
                                 label="提货手机号"
                                 rules={[{ required: true, message: '请输入提货手机号!' }]}
                             >
-                                <Input  />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                                 name="remark"
