@@ -1,7 +1,7 @@
 import { Children, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
-import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, PlusOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './order-management.scss'
 import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility/constants';
@@ -30,6 +30,7 @@ export const OrderManagement = () => {
     const driverMap = useRef(new Map<string, string>())
     const carNumberColorList = useRef<{ label: string; value: string; }[]>([])
     const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
+    const [customItems, setCustomItems] = useState<Array<{key: string, value: string}>>([]);
     const clientMap = useRef(new Map<string, string>())
 
     const filters: SearchFilter[] = [
@@ -108,6 +109,7 @@ export const OrderManagement = () => {
     const onCreate = useCallback(() => {
         form.resetFields()
         updateClients()
+        setCustomItems([])
         form.setFieldsValue({
             sender: user?.userName,
             senderPhone: user?.phone,
@@ -152,6 +154,9 @@ export const OrderManagement = () => {
     const onFinish = (values: any) => {
         if (values.id) {
             values.id = parseInt(values.id)
+            if(customItems.length > 0) {
+                values.extra = JSON.stringify(customItems)
+            }
             updateOrder(values).then((res) => {
                 message.success('更新订单成功');
                 setOpen(false)
@@ -194,6 +199,17 @@ export const OrderManagement = () => {
             pickUpDate: record.pickUpDate ? dayjs(new Date(record.pickUpDate)) : undefined,
             cargoType: record.cargoType,
         })
+        if (record.extra) {
+            try {
+                const items = JSON.parse(record.extra);
+                setCustomItems(Array.isArray(items) ? items : []);
+            } catch (e) {
+                setCustomItems([]);
+                console.error("Error parsing custom items", e);
+            }
+        } else {
+            setCustomItems([]);
+        }
         setOpen(true)
     }
     const updateClients = () => {
@@ -207,6 +223,22 @@ export const OrderManagement = () => {
         getOrderListMethod()
         updateClients()
     }, [])
+
+    const addCustomItem = () => {
+        setCustomItems([...customItems, { key: '', value: '' }]);
+    };
+
+    const removeCustomItem = (index: number) => {
+        const updatedItems = [...customItems];
+        updatedItems.splice(index, 1);
+        setCustomItems(updatedItems);
+    };
+
+    const updateCustomItem = (index: number, field: 'key' | 'value', value: string) => {
+        const updatedItems = [...customItems];
+        updatedItems[index] = { ...updatedItems[index], [field]: value };
+        setCustomItems(updatedItems);
+    };
 
     return (
         <Fragment>
@@ -312,13 +344,13 @@ export const OrderManagement = () => {
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} />
                     </Form.Item> */}
-                    <Form.Item
+                    {/* <Form.Item
                         name="cargoCount"
                         label="货物数量"
                         rules={[{ required: true, message: '请输入货物数量!' }]}
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="箱"/>
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item
                         name="cargoWeight"
                         label="货物重量"
@@ -326,13 +358,13 @@ export const OrderManagement = () => {
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="千克"/>
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="cargoVolume"
                         label="货物体积"
                         rules={[{ required: true, message: '请输入货物体积!' }]}
                     >
                         <Input disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} suffix="方"/>
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item
                         name="endLocationCode"
                         label="目的地"
@@ -396,6 +428,54 @@ export const OrderManagement = () => {
                     >
                         <DatePicker disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99} showTime />
                     </Form.Item>
+                    <div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '16px' }}>
+                            <p style={{ marginLeft: '15%' }}>自定义属性:</p>
+                            <Button 
+                                style={{ marginLeft: '5%' }}
+                                type="dashed" 
+                                icon={<PlusCircleOutlined />}
+                                onClick={addCustomItem}
+                                disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99}
+                            >
+                                添加属性
+                            </Button>
+                        </div>
+                        
+                        {customItems.length > 0 && (
+                            <div style={{ marginBottom: '20px', marginLeft: '15%' }}>
+                                {customItems.map((item, index) => (
+                                    <div key={index} style={{ 
+                                        display: 'flex', 
+                                        marginBottom: '8px',
+                                        alignItems: 'flex-start', 
+                                        gap: '8px' 
+                                    }}>
+                                        <Input
+                                            placeholder="属性名"
+                                            value={item.key}
+                                            style={{ width: '40%' }}
+                                            onChange={(e) => updateCustomItem(index, 'key', e.target.value)}
+                                            disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99}
+                                        />:
+                                        <Input
+                                            placeholder="属性值"
+                                            value={item.value}
+                                            style={{ width: '40%' }}
+                                            onChange={(e) => updateCustomItem(index, 'value', e.target.value)}
+                                            disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99}
+                                        />
+                                        <Button 
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => removeCustomItem(index)}
+                                            disabled={form.getFieldValue('status') == 2 || form.getFieldValue('status') == 99}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     <Form.Item
                         name="remark"
                         label="备注"

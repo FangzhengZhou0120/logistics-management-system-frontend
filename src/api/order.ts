@@ -23,6 +23,7 @@ export interface OrderInfo {
     key?: number,
     cargoVolume: number,
     cargoWeight: number,
+    extra?: string,
 }
 
 export interface OrderCreateForm {
@@ -43,6 +44,7 @@ export interface OrderCreateForm {
     pickUpDate: number,
     cargoVolume: number,
     cargoWeight: number,
+    extra?: string,
 }
 
 export const getOrderList = async (pageIndex: number, pageSize: number, options: any) => {
