@@ -142,7 +142,7 @@ export const WaybillDetail = () => {
                     <DatePicker.RangePicker
                         disabledDate={disabledDate.current}
                         value={replayTime} onChange={(dates) => dates?.[0] && dates?.[1] ? setReplayTime([dates[0], dates[1]]) : undefined} showTime />
-                    <Button style={{ marginLeft: '10px' }} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" : "回放"}</Button>
+                    <Button disabled={isLoading} style={{ marginLeft: '10px' }} type='primary' icon={<PlayCircleOutlined />} onClick={onClickReplay}>{isReplayMode ? "结束回放" : "回放"}</Button>
                     <Button
                         style={{ marginLeft: '10px' }}
                         type='default'
