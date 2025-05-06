@@ -308,8 +308,8 @@ export const OrderManagement = () => {
                     />
                     <Column
                         title="下单时间"
-                        dataIndex="createAt"
-                        key="createAt"
+                        dataIndex="createdAt"
+                        key="createdAt"
                         render={(time) => {
                             return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
                         }}
