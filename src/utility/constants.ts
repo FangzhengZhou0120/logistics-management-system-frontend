@@ -6,6 +6,14 @@ export const waybillStatusMap = new Map([
     [-1, "异常"],
 ]);
 
+export const orderStatusMap = new Map([
+    [0, "已下单"],
+    [1, "已派车"],
+    [2, "已送达"],
+    [99, "已取消"],
+    [-1, "异常"],
+]);
+
 export const cargoTypeMap = new Map([
     [1, "食品"],
     [2, "玩具"],
@@ -25,3 +33,15 @@ export const roleMap = new Map([
     [2, "司机"],
     [3, "客户"],
 ]);
+
+export const getCargoLocationList = [
+    { label: "维尔一期", value: "维尔一期" },
+    { label: "维尔二期", value: "维尔二期" },
+    { label: "维尔一期 + 二期", value: "维尔一期 + 二期" },
+];
+
+export const carTypeList = [
+    { label: "4.2米", value: "4.2米" },
+    { label: "7.6米", value: "7.6米" },
+    { label: "9.6米", value: "9.6米" },
+]

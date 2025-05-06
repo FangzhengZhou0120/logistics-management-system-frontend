@@ -26,6 +26,7 @@ export interface OrderInfo {
     carModel: string,
     carWait: boolean,
     extra?: string,
+    eta: number,
 }
 
 export interface OrderCreateForm {
@@ -49,6 +50,7 @@ export interface OrderCreateForm {
     carModel: string,
     extra?: string,
     carWait: boolean,
+    eta: number,
 }
 
 export const getOrderList = async (pageIndex: number, pageSize: number, options: any) => {

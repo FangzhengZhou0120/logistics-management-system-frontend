@@ -5,7 +5,7 @@ import { cancelWaybill, createWaybill, finishWaybill, getCityList, getWaybillDet
 import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-management.scss'
-import { cargoTypeMap, carNumberColorMap, waybillStatusMap } from '../../utility/constants';
+import { cargoTypeMap, carNumberColorMap, carTypeList, waybillStatusMap } from '../../utility/constants';
 import { getUserByRole } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
 import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
@@ -66,13 +66,13 @@ export const WaybillManagement = () => {
         //     placeholder: '请选择始发地',
         //     options: CityList
         // },
-        {
-            type: 'cascader',
-            name: 'endLocationCode',
-            label: '目的地',
-            placeholder: '请选择目的地',
-            options: CityList
-        },
+        // {
+        //     type: 'cascader',
+        //     name: 'endLocationCode',
+        //     label: '目的地',
+        //     placeholder: '请选择目的地',
+        //     options: CityList
+        // },
         // {
         //     type: 'input',
         //     name: 'cargoType',
@@ -93,18 +93,18 @@ export const WaybillManagement = () => {
                 { value: '99', label: '已取消' },
             ]
         },
-        {
-            type: 'dateRange',
-            name: 'startTime',
-            label: '出发日期',
-            placeholder: '请选择出发日期',
-            options: []
-        },
+        // {
+        //     type: 'dateRange',
+        //     name: 'startTime',
+        //     label: '出发日期',
+        //     placeholder: '请选择出发日期',
+        //     options: []
+        // },
     ]
 
     const getWaybillListMethod = () => {
         // searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
-        searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
+        // searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         return getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
             setData(res.data.rows)
@@ -122,7 +122,7 @@ export const WaybillManagement = () => {
 
     const onPageChange = (pageIndex: number, pageSize: number) => {
         // searchOption.current.startLocationCode = searchOption.current.startLocationCode?.join(',') || undefined
-        searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
+        // searchOption.current.endLocationCode = searchOption.current.endLocationCode?.join(',') || undefined
         getWaybillList(pageIndex, pageSize, searchOption.current).then(res => {
             res.data.rows.forEach(it => it.key = it.id)
             setData(res.data.rows)
@@ -162,6 +162,10 @@ export const WaybillManagement = () => {
     }, [])
 
     const confirmAbort = (id: number) => {
+        if (user?.role !== 1) {
+            message.error('权限不足')
+            return
+        }
         cancelWaybill(id).then(_ => {
             getWaybillListMethod()
             message.success('取消运单成功')
@@ -185,11 +189,15 @@ export const WaybillManagement = () => {
     };
 
     const onFinish = (values: any) => {
+        if (user?.role !== 1) {
+            message.error('权限不足')
+            return
+        }
         if (values.id !== undefined) {
             values.endTime = new Date(values.endTime).getTime()
             //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
             setConfirmLoading(true)
-            finishWaybill(values.id, values.endTime, values.endFileList).then(_ => {
+            finishWaybill(values.id, values.endTime, values.endFileList, values.orderId).then(_ => {
                 message.success('完成运单成功');
                 setOpen(false)
                 getWaybillListMethod()
@@ -199,15 +207,14 @@ export const WaybillManagement = () => {
                 setConfirmLoading(false)
             })
         } else {
-            values.startTime = new Date(values.startTime).getTime()
+            values.startTime = values.startTime ? new Date(values.startTime).getTime() : undefined
             // values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
-            values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
+            // values.endLocation = (CityMap.get(values.endLocationCode[0]) || '') + (CityMap.get(values.endLocationCode[1]) || '') + (CityMap.get(values.endLocationCode[2]) || '')
             // values.startLocationCode = values.startLocationCode.join(',')
-            values.endLocationCode = values.endLocationCode.join(',')
+            // values.endLocationCode = values.endLocationCode.join(',')
             // values.driverName = driverMap.current.get(values.driverId)
             // values.fileList = values.fileList.map((it: any) => it.url).join(',')
             values.clientName = clientMap.current.get(values.clientId)
-            console.log(values)
             setConfirmLoading(true)
             createWaybill(values).then((res) => {
                 message.success('创建运单成功');
@@ -227,11 +234,12 @@ export const WaybillManagement = () => {
         getWaybillDetail(id).then(res => {
             form.setFieldsValue(res.data)
             form.setFieldsValue({
-                startTime: dayjs(new Date(res.data.startTime)),
+                startTime: res.data.startTime ?dayjs(new Date(res.data.startTime)) : null,
                 endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)) : null,
                 // startLocationCode: res.data.startLocationCode.split(','),
-                endLocationCode: res.data.endLocationCode.split(','),
+                // endLocationCode: res.data.endLocationCode.split(','),
                 carNumberColor: res.data.carNumberColor.toString(),
+                eta: res.data.eta ? dayjs(new Date(res.data.eta)) : null,
                 clientId: res.data.clientId.toString(),
                 // fileList: res.data.fileList.split(",").map((it: string, index: number) => {
                 //     return {
@@ -269,11 +277,13 @@ export const WaybillManagement = () => {
                 senderPhone: res.data.senderPhone,
                 receiver: res.data.receiver,
                 receiverPhone: res.data.receiverPhone,
-                endLocationCode: res.data.endLocationCode.split(','),
+                // endLocationCode: res.data.endLocationCode.split(','),
                 endAddress: res.data.endAddress,
                 cargoType: res.data.cargoType,
                 receiveCompany: res.data.receiveCompany,
                 carModel: res.data.carModel,
+                eta: res.data.eta ? dayjs(new Date(res.data.eta)) : null,
+                cargoVolume: res.data.cargoVolume,
             })
         }).catch(err => {
             message.error(err.message)
@@ -336,34 +346,35 @@ export const WaybillManagement = () => {
                     <Column title="运单ID" dataIndex="id" key="waybillId" />
                     <Column title="运单号" dataIndex="waybillNumber" key="waybillNumber" />
                     <Column title="车牌号" dataIndex="carNumber" key="carNumber" />
-                    <Column title="客户" dataIndex="clientName" key="clientName" />
+                    {user?.role === 1 && <Column title="客户" dataIndex="clientName" key="clientName" />}
+
                     <Column title="运单状态" dataIndex="status" key="status" render={
                         (status: number) => {
                             return <span>{waybillStatusMap.get(status)}</span>
                         }
                     } />
                     {/* <Column title="始发地" dataIndex="startLocation" key="startLocation" /> */}
-                    <Column title="目的地" dataIndex="endLocation" key="endLocation" />
-                    <Column title="下单人" dataIndex="sender" key="sender" />
-                    <Column title="收货人" dataIndex="receiver" key="receiver" />
-                    <Column title="提货手机号" dataIndex="pickUpPhone" key="pickUpPhone" />
+                    <Column title="收货公司" dataIndex="receiveCompany" key="receiveCompany" />
+                    {/* <Column title="下单人" dataIndex="sender" key="sender" /> */}
+                    <Column title="司机姓名" dataIndex="driverName" key="driverName" />
+                    <Column title="司机手机号" dataIndex="pickUpPhone" key="pickUpPhone" />
                     {/* <Column title="货物类型" dataIndex="cargoType" key="cargoType" /> */}
                     <Column
-                        title="出发时间"
+                        title="实际提货时间"
                         dataIndex="startTime"
                         key="startTime"
                         render={(time) => {
                             return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
                         }}
                     />
-                    <Column
+                    {/* <Column
                         title="预计到达时间"
                         dataIndex="eta"
                         key="eta"
                         render={(time) => {
                             return <span>{time ? dayjs(new Date(time)).format('YYYY/MM/DD HH:mm:ss') : '--'}</span>
                         }}
-                    />
+                    /> */}
                     <Column
                         title="实际到达时间"
                         dataIndex="endTime"
@@ -380,7 +391,7 @@ export const WaybillManagement = () => {
                             <Space size="middle">
                                 <a onClick={() => onClickWaybillDetail(record.id)}><EyeOutlined />查看</a>
                                 <a onClick={() => onClickWaybillUpdate(record.id)}><EditOutlined />更新</a>
-                                {record.status !== 99 && <Popconfirm
+                                {record.status !== 99 && user?.role === 1 && <Popconfirm
                                     title="取消运单"
                                     description="是否确定取消运单?"
                                     onConfirm={(e) => confirmAbort(record.id)}
@@ -389,7 +400,7 @@ export const WaybillManagement = () => {
                                 >
                                     <a><StopOutlined />取消</a>
                                 </Popconfirm>}
-                                {record.status === 99 && <span style={{ color: 'gray' }}><StopOutlined />取消</span>}
+                                {(record.status === 99 || user?.role !== 1) && <span style={{ color: 'gray' }}><StopOutlined />取消</span>}
                             </Space>
                         )}
                     />
@@ -435,9 +446,23 @@ export const WaybillManagement = () => {
                                 <Input />
                             </Form.Item>
                             <Form.Item
+                                name="driverName"
+                                label="司机姓名"
+                                rules={[{ required: true, message: '请输入司机姓名!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
                                 name="carNumber"
                                 label="车牌号"
                                 rules={[{ required: true, message: '请输入车牌号!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="pickUpPhone"
+                                label="司机手机号"
+                                rules={[{ required: true, message: '请输入司机手机号!' }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -453,7 +478,7 @@ export const WaybillManagement = () => {
                                 label="车型"
                                 rules={[{ required: true, message: '请输入车型!' }]}
                             >
-                                <Input />
+                                <Select placeholder={'请选择车型'} options={carTypeList} allowClear />
                             </Form.Item>
                             {/* <Form.Item
                         name="driverId"
@@ -472,14 +497,14 @@ export const WaybillManagement = () => {
                             <Form.Item
                                 name="cargoWeight"
                                 label="货物重量"
-                                rules={[{ required: true, message: '请输入货物重量!' }]}
+                                // rules={[{ required: true, message: '请输入货物重量!' }]}
                             >
                                 <Input suffix="千克" />
                             </Form.Item>
                             <Form.Item
                                 name="cargoCount"
                                 label="货物数量"
-                                rules={[{ required: true, message: '请输入货物数量!' }]}
+                                // rules={[{ required: true, message: '请输入货物数量!' }]}
                             >
                                 <Input suffix="箱" />
                             </Form.Item>
@@ -506,36 +531,29 @@ export const WaybillManagement = () => {
                             </Form.Item> */}
 
 
-                            <Form.Item
+                            {/* <Form.Item
                                 name="endLocationCode"
                                 label="目的地"
                                 rules={[{ required: true, message: '请选择目的地!' }]}
                             >
                                 <Cascader placeholder={'请选择目的地'} options={CityList} allowClear />
-                            </Form.Item>
-                            <Form.Item
-                                name="endAddress"
-                                label="目的地详细地址"
-                                rules={[{ required: true, message: '请输入目的地详细地址!' }]}
-                            >
-                                <Input />
-                            </Form.Item>
+                            </Form.Item> */}
 
                         </div>
 
                         <div style={{ flex: '1 1 50%', paddingLeft: '12px' }}>
 
                             <Form.Item
-                                label="发货时间"
+                                label="实际提货时间"
                                 name="startTime"
-                                rules={[{ required: true, message: '请选择出发时间!' }]}
+                                // rules={[{ required: true, message: '请选择出发时间!' }]}
                             >
                                 <DatePicker showTime />
                             </Form.Item>
                             <Form.Item
-                                label="预计到达时间"
+                                label="客户要求送达时间"
                                 name="eta"
-                                rules={[{ required: true, message: '请选择预计到达时间!' }]}
+                                rules={[{ required: true, message: '请选择客户要求送达时间!' }]}
                             >
                                 <DatePicker showTime />
                             </Form.Item>
@@ -548,13 +566,13 @@ export const WaybillManagement = () => {
                                     <DatePicker showTime />
                                 </Form.Item>
                             }
-                            <Form.Item
+                            {user?.role === 1 && <Form.Item
                                 name="clientId"
                                 label="客户公司名称"
                                 rules={[{ required: true, message: '请选择客户公司名称!' }]}
                             >
                                 <Select placeholder={'请选择客户公司名称'} options={clientList} allowClear />
-                            </Form.Item>
+                            </Form.Item>}
                             <Form.Item
                                 name="sender"
                                 label="下单人"
@@ -577,8 +595,15 @@ export const WaybillManagement = () => {
                                 <Input />
                             </Form.Item>
                             <Form.Item
+                                name="endAddress"
+                                label="目的地详细地址"
+                                rules={[{ required: true, message: '请输入目的地详细地址!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
                                 name="receiver"
-                                label="收货人"
+                                label="收货联系人"
                                 rules={[{ required: true, message: '请输入收货人姓名!' }]}
                             >
                                 <Input />
@@ -590,13 +615,7 @@ export const WaybillManagement = () => {
                             >
                                 <Input />
                             </Form.Item>
-                            <Form.Item
-                                name="pickUpPhone"
-                                label="提货手机号"
-                                rules={[{ required: true, message: '请输入提货手机号!' }]}
-                            >
-                                <Input />
-                            </Form.Item>
+                            
                             <Form.Item
                                 name="remark"
                                 label="备注"

@@ -117,6 +117,6 @@ export const getUploadConfig = async () => {
     return HttpClient.get<UploadConfig>('/waybill/upload')
 }
 
-export const finishWaybill = async(id:number, endTime: number, endFileList: string) => {
-    return HttpClient.post<undefined>('/waybill/finish', {id, endTime, endFileList})
+export const finishWaybill = async(id:number, endTime: number, endFileList: string, orderId:number) => {
+    return HttpClient.post<undefined>('/waybill/finish', {id, endTime, endFileList, orderId})
 }
