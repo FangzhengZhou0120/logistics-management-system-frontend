@@ -652,8 +652,8 @@ export const WaybillManagement = () => {
                         </Form.Item>
                     } */}
                     <Form.Item style={{ textAlign: 'center' }}>
-                        {(form.getFieldValue('id') === undefined || form.getFieldValue('status') == 1) && <Button type="primary" htmlType="submit">
-                            {form.getFieldValue('id') ? "确认送达" : "提交"}
+                        {<Button type="primary" htmlType="submit">
+                            {form.getFieldValue('id') ? "修改" : "提交"}
                         </Button>}
                     </Form.Item>
                 </Form>
