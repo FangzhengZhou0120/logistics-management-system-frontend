@@ -1,7 +1,7 @@
 import { Children, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar, SearchFilter } from '../../component/search-bar/search-bar'
 import { Button, Cascader, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Upload, UploadProps } from 'antd';
-import { cancelWaybill, createWaybill, finishWaybill, getCityList, getWaybillDetail, getWaybillList, WaybillInfo } from '../../api/waybill';
+import { cancelWaybill, createWaybill, finishWaybill, getCityList, getWaybillDetail, getWaybillList, updateWaybill, WaybillInfo } from '../../api/waybill';
 import { EditOutlined, EyeOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import './waybill-management.scss'
@@ -195,18 +195,34 @@ export const WaybillManagement = () => {
             return
         }
         if (values.id !== undefined) {
-            values.endTime = new Date(values.endTime).getTime()
-            //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
-            setConfirmLoading(true)
-            finishWaybill(values.id, values.endTime, values.endFileList, values.orderId).then(_ => {
-                message.success('完成运单成功');
-                setOpen(false)
-                getWaybillListMethod()
-            }).catch(err => {
-                message.error('完成运单失败' + JSON.stringify(err))
-            }).finally(() => {
-                setConfirmLoading(false)
-            })
+            if (values.status !== 2 && values.endTime) {
+                values.endTime = new Date(values.endTime).getTime()
+                //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
+                setConfirmLoading(true)
+                finishWaybill(values.id, values.endTime, values.endFileList, values.orderId).then(_ => {
+                    message.success('完成运单成功');
+                    setOpen(false)
+                    getWaybillListMethod()
+                }).catch(err => {
+                    message.error('完成运单失败' + JSON.stringify(err))
+                }).finally(() => {
+                    setConfirmLoading(false)
+                })
+            } else {
+                setConfirmLoading(true)
+                values.startTime = values.startTime ? new Date(values.startTime).getTime() : undefined
+                values.clientName = clientMap.current.get(values.clientId)
+                setConfirmLoading(true)
+                updateWaybill(values).then(_ => {
+                    message.success('更新运单成功');
+                    setOpen(false)
+                    getWaybillListMethod()
+                }).catch(err => {
+                    message.error('更新运单失败' + JSON.stringify(err))
+                }).finally(() => {
+                    setConfirmLoading(false)
+                })
+            }
         } else {
             values.startTime = values.startTime ? new Date(values.startTime).getTime() : undefined
             // values.startLocation = (CityMap.get(values.startLocationCode[0]) || '') + (CityMap.get(values.startLocationCode[1]) || '') + (CityMap.get(values.startLocationCode[2]) || '')
@@ -235,7 +251,7 @@ export const WaybillManagement = () => {
         getWaybillDetail(id).then(res => {
             form.setFieldsValue(res.data)
             form.setFieldsValue({
-                startTime: res.data.startTime ?dayjs(new Date(res.data.startTime)) : null,
+                startTime: res.data.startTime ? dayjs(new Date(res.data.startTime)) : null,
                 endTime: res.data.endTime ? dayjs(new Date(res.data.endTime)) : null,
                 // startLocationCode: res.data.startLocationCode.split(','),
                 // endLocationCode: res.data.endLocationCode.split(','),
@@ -367,7 +383,7 @@ export const WaybillManagement = () => {
                     <Column title="司机手机号" dataIndex="pickUpPhone" key="pickUpPhone" />
                     {/* <Column title="货物类型" dataIndex="cargoType" key="cargoType" /> */}
                     <Column
-                        title="实际提货时间"
+                        title="到厂时间"
                         dataIndex="startTime"
                         key="startTime"
                         render={(time) => {
@@ -504,14 +520,14 @@ export const WaybillManagement = () => {
                             <Form.Item
                                 name="cargoWeight"
                                 label="货物重量"
-                                // rules={[{ required: true, message: '请输入货物重量!' }]}
+                            // rules={[{ required: true, message: '请输入货物重量!' }]}
                             >
                                 <Input suffix="千克" />
                             </Form.Item>
                             <Form.Item
                                 name="cargoCount"
                                 label="货物数量"
-                                // rules={[{ required: true, message: '请输入货物数量!' }]}
+                            // rules={[{ required: true, message: '请输入货物数量!' }]}
                             >
                                 <Input suffix="箱" />
                             </Form.Item>
@@ -551,9 +567,9 @@ export const WaybillManagement = () => {
                         <div style={{ flex: '1 1 50%', paddingLeft: '12px' }}>
 
                             <Form.Item
-                                label="实际提货时间"
+                                label="到厂时间"
                                 name="startTime"
-                                // rules={[{ required: true, message: '请选择出发时间!' }]}
+                                rules={[{ required: true, message: '请选择到厂时间!' }]}
                             >
                                 <DatePicker showTime />
                             </Form.Item>
@@ -622,7 +638,7 @@ export const WaybillManagement = () => {
                             >
                                 <Input />
                             </Form.Item>
-                            
+
                             <Form.Item
                                 name="remark"
                                 label="备注"
