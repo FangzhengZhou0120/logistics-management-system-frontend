@@ -196,7 +196,7 @@ export const WaybillManagement = () => {
             return
         }
         if (values.id !== undefined) {
-            if (values.status == 1 && values.endTime) {
+            if (values.endTime !== undefined && values.status == 1) {
                 values.endTime = new Date(values.endTime).getTime()
                 //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
                 setConfirmLoading(true)
