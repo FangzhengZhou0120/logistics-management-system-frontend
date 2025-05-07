@@ -46,10 +46,19 @@ export const WaybillDetail = () => {
                 getTrajectory(waybill.id, waybill.carNumber, waybill.carNumberColor, waybill.startTime, waybill.endTime).then(res => {
                     setTrajectoryInfo(res.data);
                     setIsLoading(false);
-                    setPositionInfo({
-                        lon: res.data[res.data.length - 1].longitude,
-                        lat: res.data[res.data.length - 1].latitude,
-                    })
+                    if(res.data.length > 0) {
+                        setPositionInfo({
+                            lon: res.data[res.data.length - 1].longitude,
+                            lat: res.data[res.data.length - 1].latitude,
+                        })
+                    } else {
+                        getCarPosition(waybill.carNumber + '_' + waybill.carNumberColor, waybill.startLocationCode.split(',')[1], waybill.endLocationCode.split(',')[1]).then(res => {
+                            setPositionInfo(res.data);
+                        }).catch(err => {
+                            message.error(err.message);
+                        })
+                    }
+                    
                 }).catch(err => {
                     message.error(err.message);
                 })
