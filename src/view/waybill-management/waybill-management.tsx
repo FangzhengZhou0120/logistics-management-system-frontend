@@ -14,6 +14,7 @@ import { getAllOrders, getOrderDetail, getOrderList } from '../../api/order';
 import { get } from 'http';
 import { getAllClients } from '../../api/client';
 import { useAuth } from '../../context/user-context';
+import { stat } from 'fs';
 
 export const WaybillManagement = () => {
     const navigate = useNavigate()
@@ -274,6 +275,7 @@ export const WaybillManagement = () => {
                 //         url: it
                 //     }
                 // }) : []
+                status: res.data.status,
             })
             setOpen(true)
         }).catch(err => {
