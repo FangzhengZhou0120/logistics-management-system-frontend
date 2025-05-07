@@ -198,6 +198,8 @@ export const WaybillManagement = () => {
         if (values.id !== undefined) {
             console.log(values.endTime)
             console.log((values.endTime !== null) && values.status == 1)
+            console.log((values.endTime !== null))
+            console.log(values.status == 1)
             if (values.endTime !== undefined && values.status == 1) {
                 values.endTime = new Date(values.endTime).getTime()
                 //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
