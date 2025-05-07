@@ -280,6 +280,7 @@ export const WaybillManagement = () => {
                 //         url: it
                 //     }
                 // }) : []
+                status: res.data.status,
             })
             setOpen(true)
         }).catch(err => {
