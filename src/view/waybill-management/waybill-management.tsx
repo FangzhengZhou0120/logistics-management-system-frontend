@@ -196,12 +196,7 @@ export const WaybillManagement = () => {
             return
         }
         if (values.id !== undefined) {
-            console.log(values.endTime)
-            console.log(values)
-            console.log((values.endTime !== null) && values.status == 1)
-            console.log((values.endTime !== null))
-            console.log(values.status == 1)
-            if (values.endTime !== undefined && values.status == 1) {
+            if (values.endTime !== undefined && form.getFieldValue('status') == 1) {
                 values.endTime = new Date(values.endTime).getTime()
                 //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
                 setConfirmLoading(true)
@@ -280,7 +275,6 @@ export const WaybillManagement = () => {
                 //         url: it
                 //     }
                 // }) : []
-                status: res.data.status,
             })
             setOpen(true)
         }).catch(err => {
