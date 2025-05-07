@@ -196,7 +196,7 @@ export const WaybillManagement = () => {
             return
         }
         if (values.id !== undefined) {
-            if (values.status !== 2 && values.endTime) {
+            if (values.status == 1 && values.endTime) {
                 values.endTime = new Date(values.endTime).getTime()
                 //values.endFileList = values.endFileList.map((it: any) => it.url).join(',')
                 setConfirmLoading(true)
@@ -275,7 +275,6 @@ export const WaybillManagement = () => {
                 //         url: it
                 //     }
                 // }) : []
-                status: res.data.status,
             })
             setOpen(true)
         }).catch(err => {
