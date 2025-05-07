@@ -197,6 +197,7 @@ export const WaybillManagement = () => {
         }
         if (values.id !== undefined) {
             console.log(values.endTime)
+            console.log(values)
             console.log((values.endTime !== null) && values.status == 1)
             console.log((values.endTime !== null))
             console.log(values.status == 1)
