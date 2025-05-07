@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import './waybill-management.scss'
 import { cargoTypeMap, carNumberColorMap, carTypeList, waybillStatusMap } from '../../utility/constants';
 import { getUserByRole } from '../../api/user';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AliyunOSSUpload from '../../component/oss-upload/oss-upload';
 import { CityList, CityMap } from '../../utility/city-list';
 import { getAllOrders, getOrderDetail, getOrderList } from '../../api/order';
@@ -35,6 +35,7 @@ export const WaybillManagement = () => {
     const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
     const clientMap = useRef(new Map<string, string>())
     const { user } = useAuth()
+    const location = useLocation();
 
     const filters: SearchFilter[] = [
         {
@@ -326,6 +327,12 @@ export const WaybillManagement = () => {
         })
         updateClients()
     }, [])
+
+    useEffect(() => {
+        if (location.pathname === '/waybill-list') {
+            getWaybillListMethod();
+        }
+    }, [location.pathname]);
 
     return (
         <Fragment>
