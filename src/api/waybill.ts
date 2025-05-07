@@ -120,3 +120,7 @@ export const getUploadConfig = async () => {
 export const finishWaybill = async(id:number, endTime: number, endFileList: string, orderId:number) => {
     return HttpClient.post<undefined>('/waybill/finish', {id, endTime, endFileList, orderId})
 }
+
+export const updateWaybill = async(waybill: WaybillCreateForm) => {
+    return HttpClient.post<undefined>('/waybill/update', waybill)
+}
