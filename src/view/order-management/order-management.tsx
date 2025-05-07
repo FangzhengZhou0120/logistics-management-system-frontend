@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import './order-management.scss'
 import { cargoTypeMap, carNumberColorMap, getCargoLocationList, orderStatusMap, waybillStatusMap } from '../../utility/constants';
 import { getUserByRole } from '../../api/user';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CityList, CityMap } from '../../utility/city-list';
 import { createOrder, deleteOrder, finishOrderMethod, getOrderList, OrderInfo, updateOrder } from '../../api/order';
 import { useAuth } from '../../context/user-context';
@@ -32,6 +32,7 @@ export const OrderManagement = () => {
     const [clientList, setClientList] = useState<{ label: string; value: string; }[]>([])
     const [customItems, setCustomItems] = useState<Array<{key: string, value: string}>>([]);
     const clientMap = useRef(new Map<string, string>())
+    const location = useLocation();
 
     const filters: SearchFilter[] = [
         // {
@@ -234,6 +235,12 @@ export const OrderManagement = () => {
         getOrderListMethod()
         updateClients()
     }, [])
+
+    useEffect(() => {
+        if (location.pathname === '/order-list') {
+            getOrderListMethod();
+        }
+    }, [location.pathname]);
 
     const addCustomItem = () => {
         setCustomItems([...customItems, { key: '', value: '' }]);
